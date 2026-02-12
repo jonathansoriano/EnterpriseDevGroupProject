@@ -13,14 +13,98 @@ The project uses GitHub Projects to maintain a storyboard. Each pull request wil
 
 ---
 
+
 ## 3. Functional Requirements
-- **Student Management**: The system must allow for the creation and storage of student records containing first names, last names, unique IDs, and university affiliations.
-- **Regional Filtering**: Users should be able to filter or identify students based on their specific tri-state institution.
-- **Technical Compliance**:
-  - Implementation of business logic for data processing. 
-  - Data persistence via a database. 
-  - Integration and production of JSON data. 
-  - Use of interfaces to support collaborative development
+
+### Requirement 1: Student Search
+
+**User Story:**
+- **As a** student/administrator
+- **I want** to be able to search for other students in the tri-state area
+- **So that I can** connect with them via email
+
+**Acceptance Criteria:**
+
+#### Scenario 1: Successful Search
+- **Given** that I've logged in
+- **When** I search for students by a particular field (e.g., Major, First Name, etc.)
+- **Then** I should see students populate on the page
+
+#### Scenario 2: Unsuccessful Search
+- **Given** that I've logged in
+- **When** I search for students by a particular field (e.g., Major, First Name, etc.) that doesn't exist in the database
+- **Then** I should see a message telling me no students were found
+
+### Requirement 2: Easy Navigation
+
+**User Story:**
+- **As a** student/administrator
+- **I want** to be able to easily navigate through the web application
+- **So that I** know where to go for certain functions (Searching, Updating Profile)
+
+**Acceptance Criteria:**
+
+#### Scenario 1: Finding Profile Update Option
+- **Given** that I'm logged in and I'm looking to update my profile
+- **When** I look for where I can edit/update my profile
+- **Then** I should easily find the tab/option to update my profile
+
+### Requirement 3: Partial Search Capability
+
+**User Story:**
+- **As a** student/administrator user
+- **I want** to be able to do partial searches on students based on particular fields
+- **So that** if I don't have specific information on a student I want to look up, I can search through the possible matches
+
+**Acceptance Criteria:**
+
+#### Scenario 1: Partial Search with Multiple Criteria
+- **Given** that I'm logged in and in the searching tab/option
+- **When** I try to search for students whose names start with the letter 'A' and attend Xavier University
+- **Then** I should see students that fit this description on the page
+
+#### Scenario 2: Partial Search with No Matches
+- **Given** that I'm logged in and in the searching tab/option
+- **When** I try to search for students whose names start with the letter 'Z' and attend St. Mary's University
+- **Then** I should see a message telling me no students were found
+
+### Requirement 4: Complete Profile
+
+**User Story:**
+- **As a** student/administrator
+- **I want** to be able to complete my profile
+- **So that** people are able to reach me and see my university-related information
+
+**Acceptance Criteria:**
+
+#### Scenario 1: Account Creation with Field Requirements
+- **Given** I don't have an account yet
+- **When** I try creating one with all required fields filled in
+- **Then** I should my account created successfully
+
+#### Scenario 2: Attempting to submit with missing required fields
+- **Given** I don't have an account yet
+- **When** I try creating one with missing required fields
+- **Then** I should get a message telling me to fill in the required fields to create my account
+
+### Requirement 5: Input Validation
+
+**User Story:**
+- **As a** student/administrator
+- **I want** to be able to know if my search input is valid input prior to searching
+- **So that I'm** able to get results back
+
+**Acceptance Criteria:**
+
+#### Scenario 2: Valid Input
+- **Given** that I'm logged in and in the searching tab/option
+- **When** I try to search for students with alphanumeric characters
+- **Then** I should be able to proceed with my search submission
+
+#### Scenario 2: Invalid Input
+- **Given** that I'm logged in and in the searching tab/option
+- **When** I try to search for students but type a non-alphanumeric character in a field
+- **Then** I should get a warning that my input is invalid and needs to be corrected before submission
 
 ---
 
