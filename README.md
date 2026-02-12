@@ -9,7 +9,11 @@ The application created in this problem is a University Student Directory progra
 ---
 
 ## 2. Storyboard
-The project uses GitHub Projects to maintain a storyboard. Each pull request will address the specific feature by incorporating it from the storyboard, ensuring it aligns with the overall project goals and is subject to change as the feature developments.
+![Create Account Screen](screen-1.png)
+
+![Verify Student Screen](screen-2.png)
+
+![Search Students Screen](screen.png)
 
 ---
 
