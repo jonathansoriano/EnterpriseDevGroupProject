@@ -137,8 +137,29 @@ The application created in this problem is a University Student Directory progra
 ---
 
 ## 5. JSON Schema
-
-
+```
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Student",
+  "type": "object",
+  "properties": {
+    "studentID": { "type": "integer" },
+    "firstName": { "type": "string" },
+    "lastName": { "type": "string" },
+    "major": { "type": "string" },
+    "universityName": { "type": "string" },
+    "grade": { "type": "string" },
+    "contact": {
+      "type": "object",
+      "properties": {
+        "residentCity": { "type": "string" },
+        "residentState": { "type": "string" }
+      }
+    }
+  },
+  "required": ["studentID", "firstName", "lastName", "universityName"]
+}
+```
 ---
 
 ## 6. Scrum Roles
