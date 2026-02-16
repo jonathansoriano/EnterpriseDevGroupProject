@@ -181,6 +181,8 @@ The application created in this problem is a University Student Directory progra
 
 **Project Board Link**: ```https://github.com/users/patel5d2/projects/2```
 
+**Weekly Milestones**: ```https://github.com/jonathansoriano/EnterpriseDevGroupProject/milestones```
+
 
 ---
 
