@@ -1,0 +1,24 @@
+spring:
+  profiles:
+    active: default #- second application.yml file name has to have dev in it for Spring Boot to load it. (application-dev.yml)
+                    #- we can go back to the base application.yml file with the 'default' profile.
+
+  application:
+    name: EnterpriseDevGroupProject
+
+  datasource:
+    driver-class-name: org.h2.Driver
+    url: jdbc:h2:mem:testdb
+    username: sa
+    password: ''
+
+  sql:
+    init:
+      mode: always #- ensures SQL files are executed every time the application starts
+      schema-locations: classpath:h2-schema.sql
+      data-locations: classpath:h2-data.sql
+
+  h2:
+    console:
+      enabled: true
+      path: /h2-console
