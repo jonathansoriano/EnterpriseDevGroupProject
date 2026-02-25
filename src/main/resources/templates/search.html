@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Search Students – Tri-State Student Directory</title>
+    <meta name="description"
+        content="Search the tri-state university student directory by name, university, location, and more." />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap"
+        rel="stylesheet" />
+    <link rel="stylesheet" th:href="@{/css/style.css}" />
+</head>
+
+<body class="search-page">
+
+    <!-- Top Navigation -->
+    <nav class="nav nav-search">
+        <div class="nav-brand">
+            <div class="nav-logo">🎓</div>
+            <span class="nav-title">TRI-STATE STUDENT DIRECTORY</span>
+        </div>
+        <div class="nav-links">
+            <a th:href="@{/about}" class="nav-link">About</a>
+            <a th:href="@{/search}" class="nav-link nav-link-active">Search</a>
+            <a href="#" class="nav-link">Universities</a>
+            <div class="nav-avatar" sec:authentication="name" title="Logged in user"></div>
+            <form th:action="@{/logout}" method="post" style="display: inline;">
+                <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
+                <button type="submit" class="btn-logout">Logout</button>
+            </form>
+        </div>
+    </nav>
+
+    <div class="search-layout">
+        <!-- Sidebar Filters -->
+        <aside class="sidebar">
+            <h2 class="sidebar-title">SEARCH FILTERS</h2>
+            <p class="sidebar-subtitle">Refine directory results</p>
+
+            <form th:action="@{/search}" method="get" id="search-form">
+                <div class="filter-group">
+                    <label class="filter-label" for="firstName">FIRST NAME</label>
+                    <input type="text" id="firstName" name="firstName" class="filter-input"
+                        placeholder="Enter first name..." th:value="${firstName}" />
+                </div>
+
+                <div class="filter-group">
+                    <label class="filter-label" for="lastName">LAST NAME</label>
+                    <input type="text" id="lastName" name="lastName" class="filter-input"
+                        placeholder="Enter last name..." th:value="${lastName}" />
+                </div>
+
+                <div class="filter-group">
+                    <label class="filter-label" for="universityName">UNIVERSITY</label>
+                    <select id="universityName" name="universityName" class="filter-select">
+                        <option value="">All Universities</option>
+                        <option value="University of Cincinnati"
+                            th:selected="${universityName == 'University of Cincinnati'}">University of Cincinnati
+                        </option>
+                        <option value="Northern Kentucky University"
+                            th:selected="${universityName == 'Northern Kentucky University'}">Northern Kentucky
+                            University</option>
+                        <option value="Xavier University" th:selected="${universityName == 'Xavier University'}">Xavier
+                            University</option>
+                        <option value="Miami University" th:selected="${universityName == 'Miami University'}">Miami
+                            University</option>
+                        <option value="Thomas More University"
+                            th:selected="${universityName == 'Thomas More University'}">Thomas More University</option>
+                        <option value="Cincinnati State Technical and Community College"
+                            th:selected="${universityName == 'Cincinnati State Technical and Community College'}">
+                            Cincinnati State</option>
+                        <option value="Mount St. Joseph University"
+                            th:selected="${universityName == 'Mount St. Joseph University'}">Mount St. Joseph University
+                        </option>
+                        <option value="Cincinnati Christian University"
+                            th:selected="${universityName == 'Cincinnati Christian University'}">Cincinnati Christian
+                            University</option>
+                    </select>
+                </div>
+
+                <div class="filter-group">
+                    <label class="filter-label" for="grade">GRADE LEVEL</label>
+                    <select id="grade" name="grade" class="filter-select">
+                        <option value="">All Grades</option>
+                        <option value="Freshman" th:selected="${grade == 'Freshman'}">Freshman</option>
+                        <option value="Sophomore" th:selected="${grade == 'Sophomore'}">Sophomore</option>
+                        <option value="Junior" th:selected="${grade == 'Junior'}">Junior</option>
+                        <option value="Senior" th:selected="${grade == 'Senior'}">Senior</option>
+                    </select>
+                </div>
+
+                <div class="filter-group">
+                    <label class="filter-label">STATE</label>
+                    <div class="state-toggle">
+                        <button type="button" th:classappend="${state == 'OH'} ? 'state-btn-active' : ''"
+                            class="state-btn" onclick="toggleState(this, 'OH')">OH</button>
+                        <button type="button" th:classappend="${state == 'KY'} ? 'state-btn-active' : ''"
+                            class="state-btn" onclick="toggleState(this, 'KY')">KY</button>
+                        <button type="button" th:classappend="${state == 'IN'} ? 'state-btn-active' : ''"
+                            class="state-btn" onclick="toggleState(this, 'IN')">IN</button>
+                        <input type="hidden" id="state" name="state" th:value="${state}" />
+                    </div>
+                </div>
+
+                <div class="filter-group">
+                    <label class="filter-label" for="city">CITY</label>
+                    <input type="text" id="city" name="city" class="filter-input" placeholder="Enter city..."
+                        th:value="${city}" />
+                </div>
+
+                <button type="submit" class="btn-search" id="search-btn">
+                    🔍 SEARCH
+                </button>
+                <a th:href="@{/search}" class="clear-link">CLEAR FILTERS</a>
+            </form>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="search-main">
+            <!-- When search has been performed -->
+            <div th:if="${students != null or noResults != null}">
+                <div class="results-header">
+                    <div>
+                        <h1 class="results-title">Student Results</h1>
+                        <p class="results-count" th:if="${resultCount != null}"
+                            th:text="'Showing 1-' + ${resultCount} + ' of ' + ${resultCount} + ' registered students'">
+                        </p>
+                    </div>
+                    <div class="sort-row" th:if="${students != null}">
+                        <span class="sort-label">SORT BY:</span>
+                        <select class="sort-select">
+                            <option>Most Recent</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Student Results Grid -->
+                <div class="results-grid" th:if="${students != null}">
+                    <div class="student-card" th:each="student : ${students}">
+                        <div class="card-header-row">
+                            <div class="avatar-placeholder">
+                                <span class="avatar-icon">👤</span>
+                            </div>
+                            <span class="student-id" th:text="'ID: ' + ${student.id}"></span>
+                        </div>
+                        <h3 class="student-name" th:text="${student.firstName} + ' ' + ${student.lastName}"></h3>
+                        <p class="student-university" th:text="${student.universityName}"></p>
+                        <hr class="card-divider" />
+                        <div class="card-details">
+                            <div class="detail-row" th:if="${student.residentCity != null}">
+                                <span class="detail-icon">📍</span>
+                                <span th:text="${student.residentCity} + ', ' + ${student.residentState}"></span>
+                            </div>
+                            <div class="detail-row" th:if="${student.email != null}">
+                                <span class="detail-icon">✉️</span>
+                                <a th:href="'mailto:' + ${student.email}" th:text="${student.email}"
+                                    class="email-link"></a>
+                            </div>
+                        </div>
+                        <div class="card-badge" th:classappend="'grade-' + ${#strings.toLowerCase(student.grade)}"
+                            th:text="${student.grade}"></div>
+                    </div>
+                </div>
+
+                <!-- No results state -->
+                <div class="no-results" th:if="${noResults}">
+                    <div class="no-results-icon">🔍</div>
+                    <h2 class="no-results-title">No Students Found</h2>
+                    <p class="no-results-text">
+                        We couldn't find any students matching your search criteria.
+                        Try adjusting your filters or broadening your search terms.
+                    </p>
+                    <a th:href="@{/search}" class="btn-primary-sm">Clear &amp; Start Over</a>
+                </div>
+            </div>
+
+            <!-- Empty state (no search yet) -->
+            <div class="empty-state" th:if="${students == null and noResults == null}">
+                <div class="empty-icon">🎓</div>
+                <h2 class="empty-title">Find Students Across the Tri-State Area</h2>
+                <p class="empty-text">
+                    Use the filters on the left to search for students from universities
+                    in Ohio, Kentucky, and Indiana. You can search by name, university,
+                    location, and grade level.
+                </p>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        /**
+         * Handles toggling the state filter buttons.
+         * Clicking an active button deselects it; clicking an inactive button selects it.
+         * @param {HTMLButtonElement} btn - The clicked state button
+         * @param {string} stateVal - The two-letter state code (e.g., "OH")
+         */
+        function toggleState(btn, stateVal) {
+            const stateInput = document.getElementById('state');
+            const allBtns = document.querySelectorAll('.state-btn');
+
+            if (stateInput.value === stateVal) {
+                // Deselect if already selected
+                stateInput.value = '';
+                btn.classList.remove('state-btn-active');
+            } else {
+                // Select new state
+                stateInput.value = stateVal;
+                allBtns.forEach(b => b.classList.remove('state-btn-active'));
+                btn.classList.add('state-btn-active');
+            }
+        }
+    </script>
+</body>
+
+</html>

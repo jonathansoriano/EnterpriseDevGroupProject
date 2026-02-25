@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>About – Tri-State Student Directory</title>
+    <meta name="description"
+        content="Learn about the Tri-State Student Directory project, the team behind it, and the mission to connect university students across Ohio, Kentucky, and Indiana." />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap"
+        rel="stylesheet" />
+    <link rel="stylesheet" th:href="@{/css/style.css}" />
+    <link rel="stylesheet" th:href="@{/css/about.css}" />
+</head>
+
+<body class="about-page">
+
+    <!-- Navigation -->
+    <nav class="nav">
+        <div class="nav-brand">
+            <div class="nav-logo">🎓</div>
+            <span class="nav-title"><strong>STUDENT</strong>NETWORK</span>
+        </div>
+        <div class="nav-links">
+            <a th:href="@{/about}" class="nav-link nav-link-active">About</a>
+            <a th:href="@{/search}" class="nav-link">Search</a>
+            <a th:href="@{/login}" class="btn-outline-sm">Sign In</a>
+        </div>
+    </nav>
+
+    <!-- Hero Banner -->
+    <section class="about-hero">
+        <div class="about-hero-inner">
+            <div class="badge-label">ABOUT THE PROJECT</div>
+            <h1 class="about-title">Built for students,<br /><em>by students.</em></h1>
+            <p class="about-lead">
+                The Tri-State Student Directory was created to solve the problem of fragmented
+                student information across universities in the Ohio, Kentucky, and Indiana region.
+                Our goal: one searchable, verified network for every student to connect,
+                collaborate, and grow.
+            </p>
+        </div>
+    </section>
+
+    <main class="about-content">
+
+        <!-- Why Was It Built -->
+        <section class="about-section">
+            <div class="section-inner">
+                <div class="section-tag">WHY WE BUILT IT</div>
+                <h2 class="section-title">The Problem We're Solving</h2>
+                <p class="section-text">
+                    Students across the tri-state region — at institutions like the University of Cincinnati,
+                    Xavier University, Northern Kentucky University, and Cincinnati State — had no centralized
+                    way to discover and connect with peers at other universities. Administrators similarly
+                    lacked a reliable cross-institutional directory for communication and outreach.
+                </p>
+                <p class="section-text">
+                    This application was developed as part of an Enterprise Application Development course
+                    to demonstrate a production-ready, full-stack Java web application with real-world
+                    features: secure authentication, database-driven search, input validation, and
+                    clean REST APIs.
+                </p>
+
+                <div class="feature-grid">
+                    <div class="feature-card">
+                        <span class="feature-icon">🔍</span>
+                        <h3>Powerful Search</h3>
+                        <p>Partial and full search across first name, last name, university, city, state, and
+                            year/grade.</p>
+                    </div>
+                    <div class="feature-card">
+                        <span class="feature-icon">🔐</span>
+                        <h3>Secure Access</h3>
+                        <p>Spring Security with BCrypt password hashing and .edu email domain verification ensures only
+                            verified students register.</p>
+                    </div>
+                    <div class="feature-card">
+                        <span class="feature-icon">🏫</span>
+                        <h3>Multi-University</h3>
+                        <p>Covers 8 tri-state universities with 30+ student records, expandable to any institution in
+                            the region.</p>
+                    </div>
+                    <div class="feature-card">
+                        <span class="feature-icon">⚡</span>
+                        <h3>Fast &amp; Reliable</h3>
+                        <p>Built on Spring Boot 4 with H2 in-memory database and named-parameter JDBC for low-latency
+                            queries.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Tech Stack -->
+        <section class="about-section about-section-alt">
+            <div class="section-inner">
+                <div class="section-tag">TECHNOLOGY</div>
+                <h2 class="section-title">How It's Built</h2>
+                <div class="tech-grid">
+                    <div class="tech-badge">
+                        <span class="tech-icon">☕</span>
+                        <div>
+                            <strong>Spring Boot 4</strong>
+                            <span>Application Framework</span>
+                        </div>
+                    </div>
+                    <div class="tech-badge">
+                        <span class="tech-icon">🔒</span>
+                        <div>
+                            <strong>Spring Security 6</strong>
+                            <span>Authentication &amp; Authorization</span>
+                        </div>
+                    </div>
+                    <div class="tech-badge">
+                        <span class="tech-icon">🗄️</span>
+                        <div>
+                            <strong>H2 / PostgreSQL</strong>
+                            <span>Database (Dev / Prod)</span>
+                        </div>
+                    </div>
+                    <div class="tech-badge">
+                        <span class="tech-icon">🌿</span>
+                        <div>
+                            <strong>Spring Data JPA + JDBC</strong>
+                            <span>Data Access Layer</span>
+                        </div>
+                    </div>
+                    <div class="tech-badge">
+                        <span class="tech-icon">🖼️</span>
+                        <div>
+                            <strong>Thymeleaf</strong>
+                            <span>Server-Side Templating</span>
+                        </div>
+                    </div>
+                    <div class="tech-badge">
+                        <span class="tech-icon">🐋</span>
+                        <div>
+                            <strong>Docker</strong>
+                            <span>Containerization</span>
+                        </div>
+                    </div>
+                    <div class="tech-badge">
+                        <span class="tech-icon">⚙️</span>
+                        <div>
+                            <strong>GitHub Actions</strong>
+                            <span>CI/CD Pipeline</span>
+                        </div>
+                    </div>
+                    <div class="tech-badge">
+                        <span class="tech-icon">🧪</span>
+                        <div>
+                            <strong>JUnit 5 + Mockito</strong>
+                            <span>Unit &amp; Integration Testing</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Team Section -->
+        <section class="about-section">
+            <div class="section-inner">
+                <div class="section-tag">THE TEAM</div>
+                <h2 class="section-title">Meet the Developers</h2>
+                <p class="section-text">This project was built by a four-person team for the Enterprise Application
+                    Development course.</p>
+
+                <div class="team-grid">
+                    <div class="team-card">
+                        <div class="team-avatar">DP</div>
+                        <div class="team-info">
+                            <h3>Dharmin Patel</h3>
+                            <span class="team-role">Scrum Master &amp; GitHub Admin</span>
+                            <p>Led sprint planning, maintained the GitHub repository, and coordinated pull request
+                                reviews and project board milestones.</p>
+                        </div>
+                    </div>
+                    <div class="team-card">
+                        <div class="team-avatar">IK</div>
+                        <div class="team-info">
+                            <h3>Ian Kellenberger</h3>
+                            <span class="team-role">Product Owner &amp; GitHub Admin</span>
+                            <p>Defined and prioritized product backlog items, wrote user stories, and ensured acceptance
+                                criteria were met each sprint.</p>
+                        </div>
+                    </div>
+                    <div class="team-card">
+                        <div class="team-avatar">MB</div>
+                        <div class="team-info">
+                            <h3>Matthew Brown</h3>
+                            <span class="team-role">UI/UX Developer</span>
+                            <p>Designed the user interface, created the storyboard wireframes, and implemented Thymeleaf
+                                front-end templates and CSS.</p>
+                        </div>
+                    </div>
+                    <div class="team-card">
+                        <div class="team-avatar">JS</div>
+                        <div class="team-info">
+                            <h3>Jonathan Soriano</h3>
+                            <span class="team-role">Backend Developer</span>
+                            <p>Implemented the Spring Boot backend, JDBC repository layer, service logic, REST APIs, and
+                                unit/integration test suite.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Repository Info -->
+        <section class="about-section about-section-alt">
+            <div class="section-inner">
+                <div class="section-tag">REPOSITORY</div>
+                <h2 class="section-title">Project Links</h2>
+                <div class="repo-grid">
+                    <a href="https://github.com/jonathansoriano/EnterpriseDevGroupProject" target="_blank"
+                        rel="noopener" class="repo-card" id="github-repo-link">
+                        <span class="repo-icon">📂</span>
+                        <div>
+                            <strong>GitHub Repository</strong>
+                            <span>jonathansoriano/EnterpriseDevGroupProject</span>
+                        </div>
+                        <span class="repo-arrow">↗</span>
+                    </a>
+                    <a href="https://github.com/users/patel5d2/projects/2" target="_blank" rel="noopener"
+                        class="repo-card" id="project-board-link">
+                        <span class="repo-icon">📋</span>
+                        <div>
+                            <strong>Project Board</strong>
+                            <span>Sprints, milestones &amp; issue tracking</span>
+                        </div>
+                        <span class="repo-arrow">↗</span>
+                    </a>
+                    <a href="https://github.com/jonathansoriano/EnterpriseDevGroupProject/milestones" target="_blank"
+                        rel="noopener" class="repo-card" id="milestones-link">
+                        <span class="repo-icon">🎯</span>
+                        <div>
+                            <strong>Weekly Milestones</strong>
+                            <span>Sprint deliverables and progress</span>
+                        </div>
+                        <span class="repo-arrow">↗</span>
+                    </a>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- Footer -->
+    <footer class="about-footer">
+        <div class="footer-inner">
+            <span>© 2025 Tri-State Student Network · Enterprise Dev Group Project</span>
+            <div class="footer-links">
+                <a th:href="@{/login}">Sign In</a>
+                <a th:href="@{/search}">Search</a>
+            </div>
+        </div>
+    </footer>
+
+</body>
+
+</html>
