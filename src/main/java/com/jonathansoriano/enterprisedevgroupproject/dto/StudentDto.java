@@ -17,6 +17,7 @@ public class StudentDto {
     private String residentState;
     private String universityName;
     private String grade;
+    private String major;
     private String email;
     private String socialMediaLink;
 }

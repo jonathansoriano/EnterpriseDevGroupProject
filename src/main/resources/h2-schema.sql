@@ -15,7 +15,17 @@ CREATE TABLE student (
     resident_state varchar(2) NOT NULL,
     university_id BIGINT NOT NULL,
     grade varchar(10) NOT NULL,
+    major varchar(255) NOT NULL,
     email varchar (255) NOT NULL,
     social_media_link varchar(255) NULL,
     FOREIGN KEY (university_id) REFERENCES university(id)
+);
+
+CREATE TABLE app_user (
+  id BIGINT AUTO_INCREMENT PRIMARY KEY,
+  student_id BIGINT NOT NULL,
+  role varchar(20) NOT NULL,
+  username_email varchar(255) NOT NULL,
+  password varchar(255) NOT NULL,
+  FOREIGN KEY (student_id) REFERENCES student(id)
 );

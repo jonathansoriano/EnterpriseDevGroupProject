@@ -1,6 +1,7 @@
 package com.jonathansoriano.enterprisedevgroupproject.repository;
 
 import com.jonathansoriano.enterprisedevgroupproject.domain.StudentRequest;
+import com.jonathansoriano.enterprisedevgroupproject.domain.StudentSignupRequest;
 import com.jonathansoriano.enterprisedevgroupproject.dto.StudentDto;
 import com.jonathansoriano.enterprisedevgroupproject.util.SqlUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -23,6 +24,7 @@ public class StudentRepository {
               s.resident_state AS residentState,
               u.name AS universityName,
               s.grade AS grade,
+              s.major AS major,
               s.email AS email,
               s.social_media_link AS socialMediaLink
             FROM student s
@@ -36,6 +38,13 @@ public class StudentRepository {
     public static final String AND_RESIDENT_STATE = "AND s.resident_state = :residentState";
     public static final String AND_UNIVERSITY_NAME = "AND LOWER(u.name) LIKE :universityName";
     public static final String AND_GRADE = "AND s.grade = :grade";
+    public static final String AND_MAJOR = "AND LOWER(s.major) LIKE :major";
+
+    public static final String INSERT_NEW_STUDENT = """
+            INSERT INTO student (first_name, last_name, resident_city, resident_state, university_id, grade, major,email, social_media_link)
+            VALUES (:firstName, :lastName, :residentCity, :residentState, :universityId, :grade, :major, :email, :socialMediaLink);
+            
+            """;
 
 
     private final NamedParameterJdbcTemplate jdbcTemplate;
@@ -52,7 +61,8 @@ public class StudentRepository {
                 .addValue("residentCity", "%" + StringUtils.lowerCase(request.getResidentCity()) + "%")
                 .addValue("residentState", request.getResidentState())
                 .addValue("universityName", "%" + StringUtils.lowerCase(request.getUniversityName()) + "%")
-                .addValue("grade", request.getGrade());
+                .addValue("grade", request.getGrade())
+                .addValue("major", "%" + StringUtils.lowerCase(request.getMajor()) + "%");
         //Building the Query based on whether the field from the request object is either null or not.
         StringBuilder sql = new StringBuilder(SELECT)
                 .append(SqlUtils.andAddCondition(AND_FIRSTNAME, request.getFirstName()))
@@ -60,8 +70,27 @@ public class StudentRepository {
                 .append(SqlUtils.andAddCondition(AND_RESIDENT_CITY, request.getResidentCity()))
                 .append(SqlUtils.andAddCondition(AND_RESIDENT_STATE, request.getResidentState()))
                 .append(SqlUtils.andAddCondition(AND_UNIVERSITY_NAME, request.getUniversityName()))
-                .append(SqlUtils.andAddCondition(AND_GRADE, request.getGrade()));
+                .append(SqlUtils.andAddCondition(AND_GRADE, request.getGrade()))
+                .append(SqlUtils.andAddCondition(AND_MAJOR, request.getMajor()));
         //jdbctemplate talks to the database with your query and returns a List that you specify (e.g. StudentDto).
         return jdbcTemplate.query(sql.toString(), params, new BeanPropertyRowMapper<>(StudentDto.class, true));
     }
+
+    public int insertNewStudent(StudentSignupRequest student){
+        MapSqlParameterSource params = new MapSqlParameterSource()
+                .addValue("firstName", student.getFirstName())
+                .addValue("lastName", student.getLastName())
+                .addValue("residentCity", student.getResidentCity())
+                .addValue("residentState", student.getResidentState())
+                .addValue("universityId",student.getUniversityId())
+                .addValue("grade", student.getGrade())
+                .addValue("major", student.getMajor())
+                .addValue("email", student.getEmail())
+                .addValue("socialMediaLink", student.getSocialMediaLink());
+
+        return jdbcTemplate.update(INSERT_NEW_STUDENT, params); //update() returns an "int" to indicate how many rows
+                                                                // Were affected by the SQL Operation. If int > 0,
+                                                                // Then operation was successful; else no rows were inserted/updated...
+    }
+
 }
