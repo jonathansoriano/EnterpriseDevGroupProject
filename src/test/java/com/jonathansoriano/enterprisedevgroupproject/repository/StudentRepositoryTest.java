@@ -1,6 +1,8 @@
 package com.jonathansoriano.enterprisedevgroupproject.repository;
 
 import com.jonathansoriano.enterprisedevgroupproject.domain.StudentRequest;
+import com.jonathansoriano.enterprisedevgroupproject.domain.StudentSignupRequest;
+import com.jonathansoriano.enterprisedevgroupproject.domain.UserRequest;
 import com.jonathansoriano.enterprisedevgroupproject.dto.StudentDto;
 import com.jonathansoriano.enterprisedevgroupproject.model.Student;
 import org.junit.jupiter.api.Test;
@@ -191,4 +193,71 @@ class StudentRepositoryTest {
 
     }
 
+    @Test
+    void insertNewStudent_insertionSuccessful() {
+        //Arrange
+        StudentSignupRequest request = StudentSignupRequest.builder()
+                .firstName("Joe")
+                .lastName("Smith")
+                .residentCity("Cincinnati")
+                .residentState("OH")
+                .universityId(1)
+                .grade("Freshman")
+                .major("General Studies")
+                .email("test@email.com")
+                .password("passw0rd!")
+                .socialMediaLink(null)
+                .build();
+        int expectRowsAffected = 1;
+        //Act
+        int actualRowsAffected = repository.insertNewStudent(request);
+        //Assert
+        assertEquals(expectRowsAffected, actualRowsAffected);
+    }
+
+    @Test
+    void insertNewStudent_insertionFailed() {
+        //Arrange
+        StudentSignupRequest request = StudentSignupRequest.builder()
+                .firstName("Joe")
+                .lastName("Smith")
+                .residentCity("Cincinnati")
+                .residentState("OH")
+                .universityId(null)
+                .grade("Freshman")
+                .major("General Studies")
+                .email("test@email.com")
+                .password("passw0rd!")
+                .socialMediaLink(null)
+                .build();
+        //Act and Assert
+        assertThrows(RuntimeException.class, ()-> repository.insertNewStudent(request));
+    }
+
+    @Test
+    void insertNewUser_insertionSuccessful() {
+        //Arrange
+        UserRequest userRequest = UserRequest.builder()
+                .role("USER")
+                .email("test@email.com")
+                .password("$2a$10$N9qo8uLOickgx2ZMRZoMyeIjZAgcfl7p92ldGxad68LJZdL17lhWy")
+                .build();
+        int expectRowsAffected = 1;
+        //Act
+        int actualRowsAffected = repository.insertNewUser(userRequest);
+        //Assert
+        assertEquals(expectRowsAffected, actualRowsAffected);
+    }
+
+    @Test
+    void insertNewUser_insertionFailed() {
+        //Arrange
+        UserRequest request = UserRequest.builder()
+                .role("User")
+                .email("test@email.com")
+                .password(null)
+                .build();
+        //Assert
+        assertThrows(RuntimeException.class, ()-> repository.insertNewUser(request));
+    }
 }

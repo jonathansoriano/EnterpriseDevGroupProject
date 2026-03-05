@@ -16,4 +16,5 @@ public class StudentRequest {
     private String residentState;
     private String universityName;
     private String grade;
+    private String major;
 }

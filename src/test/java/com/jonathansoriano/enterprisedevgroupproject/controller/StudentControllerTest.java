@@ -1,6 +1,5 @@
 package com.jonathansoriano.enterprisedevgroupproject.controller;
 
-import com.jonathansoriano.enterprisedevgroupproject.domain.StudentRequest;
 import com.jonathansoriano.enterprisedevgroupproject.exception.SearchNotFoundException;
 import com.jonathansoriano.enterprisedevgroupproject.model.Student;
 import com.jonathansoriano.enterprisedevgroupproject.service.StudentService;
@@ -13,17 +12,18 @@ import org.springframework.http.MediaType;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.web.client.HttpServerErrorException;
+import tools.jackson.databind.ObjectMapper;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
+
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @ExtendWith(SpringExtension.class)
 @WebMvcTest(controllers = StudentController.class)
@@ -34,6 +34,9 @@ class StudentControllerTest {
     private StudentService service;
     @Autowired
     private MockMvc mockMvc;
+
+    private ObjectMapper objectMapper; // Can be used to serialize/deserialize JSON
+                                        // Can also be used to convert Request(StudentSignupRequest,etc) Objects to JSON (POST request body)
 
     //We test for exceptions in the controller layer to verify the exception is translated to the
     //correct HTTP response (Status code, body, headers)
@@ -54,7 +57,7 @@ class StudentControllerTest {
     }
 
     @Test
-    void find_Http404() throws Exception{
+    void find_Http404_NotFound() throws Exception{
         //Arrange
         //when(service.find(any())).thenReturn(Collections.emptyList());
         when(service.find(any())).thenThrow(SearchNotFoundException.class);
@@ -65,13 +68,79 @@ class StudentControllerTest {
                 .andExpect(status().isNotFound());
 
     }
-    
+
+    @Test
+    void createNewStudent_Http201_Created() throws Exception {
+        //Arrange
+        String requestJson = """
+                            {
+                              "firstName": "Jon",
+                              "lastName": "Sanjuan",
+                              "residentCity": "Cincinnati",
+                              "residentState": "OH",
+                              "universityName": "University of Cincinnati",
+                              "grade": "Senior",
+                              "major": "Computer Science",
+                              "email": "jon@example.com",
+                              "password": "Password123!",
+                              "socialMediaLink": "https://linkedin.com/in/someone"
+                            }
+                            """;
+        String expectedMessage = "Student Signup Successful!";
+        when(service.insertNewStudent(any())).thenReturn(expectedMessage);
+        //Act and Assert (using andExpect() method)
+        mockMvc.perform(post("/studentSignUp")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(requestJson))
+                        .andExpect(status().isCreated())
+                        .andExpect(content().string(expectedMessage));
+    }
+
+    @Test
+    void createNewStudent_MissingBody_Http500_ServerError() throws Exception{
+        //Arrange
+        //Mimic not having a body in the request
+        //When we call the insertNewStudent() method, it should throw an 500 exception
+        when(service.insertNewStudent(any())).thenThrow(HttpServerErrorException.InternalServerError.class);
+
+        //Act and Assert (using andExpect() method)
+        mockMvc.perform(post("/studentSignUp")
+                        .contentType(MediaType.APPLICATION_JSON))
+                        .andExpect(status().is5xxServerError());
+    }
+
+    @Test
+    void createNewStudent_MissingRequiredField_Http500() throws Exception{
+        //Arrange
+        //Missing required field (password)
+        String invalidRequestJson = """
+                                        {
+                                          "firstName": "FirstName",
+                                          "lastName": "LastName",
+                                          "residentCity": "TestCity",
+                                          "residentState": "OH",
+                                          "universityId": 1,
+                                          "grade": "Junior",
+                                          "major": "Computer Science",
+                                          "email": "test@example.com",
+                                          "socialMediaLink": "Test"
+                                        }
+                                    """;
+        when(service.insertNewStudent(any())).thenThrow(HttpServerErrorException.InternalServerError.class);
+
+        //Act and Assert (using andExpect() method)
+        mockMvc.perform(post("/studentSignUp")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(invalidRequestJson))
+                        .andExpect(status().is5xxServerError());
+    }
+
+
 
     private List<Student> getStudentList() {
         List<Student> studentList = new ArrayList<>();
 
         Student student1 = Student.builder()
-                .id(1L)
                 .firstName("Jon")
                 .lastName("Sanjuan")
                 .residentCity("Cincinnati")
@@ -83,7 +152,6 @@ class StudentControllerTest {
                 .build();
 
         Student student2 = Student.builder()
-                .id(2L)
                 .firstName("John")
                 .lastName("Saint")
                 .residentCity("Cincinnati")
@@ -99,5 +167,4 @@ class StudentControllerTest {
 
         return studentList;
     }
-
 }
