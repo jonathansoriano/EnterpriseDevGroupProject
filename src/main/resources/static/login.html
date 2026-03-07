@@ -105,8 +105,11 @@
                     <div class="form-group">
                         <label class="form-label" for="reg-email">UNIVERSITY EMAIL</label>
                         <input type="email" id="reg-email" name="email" class="form-input"
-                            placeholder="student@edu.university" required />
-                        <small class="form-hint">* Requires verification via .edu domain</small>
+                            placeholder="student@university.edu" pattern=".+\.edu$"
+                            title="Please use a valid .edu email address" required />
+                        <small class="form-hint">* Only .edu email addresses are accepted</small>
+                        <small class="form-error" id="email-error"
+                            style="display:none; color:#ef4444; margin-top:4px;"></small>
                     </div>
 
                     <!-- Password -->
@@ -236,62 +239,25 @@
         async function handleSignUp(e) {
             e.preventDefault();
 
-            const messageDiv = document.getElementById('signup-message');
-            const submitBtn = document.getElementById('signup-btn');
+            const emailInput = document.getElementById('reg-email');
+            const emailError = document.getElementById('email-error');
+            const email = emailInput.value.trim().toLowerCase();
 
-            // Disable button and show loading state to prevent duplicate submissions
-            submitBtn.disabled = true;
-            submitBtn.textContent = 'CREATING ACCOUNT...';
-            messageDiv.textContent = '';
-            messageDiv.style.color = '';
+            // Clear previous error
+            emailError.style.display = 'none';
+            emailError.textContent = '';
+            emailInput.style.borderColor = '';
 
-            // Build the request payload from form field values
-            // This object structure must match the backend StudentSignupRequest DTO exactly
-            const payload = {
-                firstName: document.getElementById('reg-firstName').value.trim(),
-                lastName: document.getElementById('reg-lastName').value.trim(),
-                email: document.getElementById('reg-email').value.trim(),
-                password: document.getElementById('reg-password').value,
-                universityId: parseInt(document.getElementById('reg-university').value, 10),
-                grade: document.getElementById('reg-grade').value,
-                major: document.getElementById('reg-major').value.trim(),
-                residentCity: document.getElementById('reg-city').value.trim(),
-                residentState: document.getElementById('reg-state').value,
-                socialMediaLink: document.getElementById('reg-social').value.trim() || null
-            };
-
-            try {
-                // POST to the backend StudentController's /studentSignUp endpoint
-                const response = await fetch('/studentSignUp', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(payload)
-                });
-
-                if (response.status === 201) {
-                    // 201 Created — the backend returns a success message string
-                    const successMessage = await response.text();
-                    messageDiv.style.color = '#16a34a';
-                    messageDiv.textContent = successMessage;
-
-                    // Redirect to the search page after a short delay so the user sees the success message
-                    setTimeout(() => { window.location.href = '/search.html'; }, 1500);
-                } else {
-                    // Non-201 response — try to parse the error wrapper returned by ExceptionTranslator
-                    const errorData = await response.json().catch(() => null);
-                    messageDiv.style.color = '#dc2626';
-                    messageDiv.textContent = errorData ? errorData.message : 'Sign-up failed. Please try again.';
-                }
-            } catch (err) {
-                // Network error or server unreachable
-                messageDiv.style.color = '#dc2626';
-                messageDiv.textContent = 'Could not connect to the server. Please try again later.';
-            } finally {
-                // Re-enable the button regardless of outcome
-                submitBtn.disabled = false;
-                submitBtn.textContent = 'VERIFIED SIGN UP';
+            // Validate .edu email
+            if (!email.endsWith('.edu')) {
+                emailError.textContent = 'Only .edu email addresses are accepted. Please use your university email.';
+                emailError.style.display = 'block';
+                emailInput.style.borderColor = '#ef4444';
+                emailInput.focus();
+                return false;
             }
 
+            alert('Sign-up functionality is not yet connected to a backend registration service.');
             return false;
         }
     </script>

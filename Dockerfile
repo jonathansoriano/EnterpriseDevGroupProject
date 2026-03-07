@@ -41,7 +41,7 @@ EXPOSE 8080
 
 # Health check: ping the app every 30s; fail after 3 consecutive failures
 HEALTHCHECK --interval=30s --timeout=5s --start-period=30s --retries=3 \
-    CMD wget -qO- http://localhost:8080/ || exit 1
+    CMD wget -qO- http://localhost:8080/actuator/health || exit 1
 
 # Allow JVM tuning via JAVA_OPTS at runtime (e.g., -e JAVA_OPTS="-Xmx512m")
 ENV JAVA_OPTS=""
