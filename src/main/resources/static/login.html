@@ -83,8 +83,25 @@
             </div>
 
             <!-- SIGN UP Form (hidden by default) -->
+            <!-- This form collects all required fields for the StudentSignupRequest DTO on the backend -->
             <div class="tab-content" id="signup-content" style="display: none;">
                 <form id="signup-form" onsubmit="return handleSignUp(event)">
+
+                    <!-- Row: First Name & Last Name -->
+                    <div class="form-row">
+                        <div class="form-group form-group-half">
+                            <label class="form-label" for="reg-firstName">FIRST NAME</label>
+                            <input type="text" id="reg-firstName" name="firstName" class="form-input"
+                                placeholder="John" required />
+                        </div>
+                        <div class="form-group form-group-half">
+                            <label class="form-label" for="reg-lastName">LAST NAME</label>
+                            <input type="text" id="reg-lastName" name="lastName" class="form-input"
+                                placeholder="Doe" required />
+                        </div>
+                    </div>
+
+                    <!-- University Email -->
                     <div class="form-group">
                         <label class="form-label" for="reg-email">UNIVERSITY EMAIL</label>
                         <input type="email" id="reg-email" name="email" class="form-input"
@@ -94,12 +111,79 @@
                         <small class="form-error" id="email-error"
                             style="display:none; color:#ef4444; margin-top:4px;"></small>
                     </div>
+
+                    <!-- Password -->
                     <div class="form-group">
                         <label class="form-label" for="reg-password">CREATE PASSWORD</label>
                         <input type="password" id="reg-password" name="password" class="form-input"
-                            placeholder="Min. 8 characters" required />
+                            placeholder="Min. 8 characters" minlength="8" required />
                     </div>
+
+                    <!-- University Selection (maps to universityId integer on the backend) -->
+                    <div class="form-group">
+                        <label class="form-label" for="reg-university">UNIVERSITY</label>
+                        <select id="reg-university" name="universityId" class="form-input" required>
+                            <option value="">Select University</option>
+                            <option value="1">University of Cincinnati</option>
+                            <option value="2">Northern Kentucky University</option>
+                            <option value="3">Xavier University</option>
+                            <option value="4">Miami University</option>
+                            <option value="5">Thomas More University</option>
+                            <option value="6">Cincinnati State</option>
+                            <option value="7">Mount St. Joseph University</option>
+                            <option value="8">Cincinnati Christian University</option>
+                        </select>
+                    </div>
+
+                    <!-- Row: Grade & Major -->
+                    <div class="form-row">
+                        <div class="form-group form-group-half">
+                            <label class="form-label" for="reg-grade">GRADE</label>
+                            <select id="reg-grade" name="grade" class="form-input" required>
+                                <option value="">Select Grade</option>
+                                <option value="Freshman">Freshman</option>
+                                <option value="Sophomore">Sophomore</option>
+                                <option value="Junior">Junior</option>
+                                <option value="Senior">Senior</option>
+                            </select>
+                        </div>
+                        <div class="form-group form-group-half">
+                            <label class="form-label" for="reg-major">MAJOR</label>
+                            <input type="text" id="reg-major" name="major" class="form-input"
+                                placeholder="e.g. Computer Science" required />
+                        </div>
+                    </div>
+
+                    <!-- Row: City & State -->
+                    <div class="form-row">
+                        <div class="form-group form-group-half">
+                            <label class="form-label" for="reg-city">CITY</label>
+                            <input type="text" id="reg-city" name="residentCity" class="form-input"
+                                placeholder="Cincinnati" required />
+                        </div>
+                        <div class="form-group form-group-half">
+                            <label class="form-label" for="reg-state">STATE</label>
+                            <select id="reg-state" name="residentState" class="form-input" required>
+                                <option value="">Select</option>
+                                <option value="OH">OH</option>
+                                <option value="KY">KY</option>
+                                <option value="IN">IN</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <!-- Social Media Link (optional) -->
+                    <div class="form-group">
+                        <label class="form-label" for="reg-social">SOCIAL MEDIA LINK (OPTIONAL)</label>
+                        <input type="url" id="reg-social" name="socialMediaLink" class="form-input"
+                            placeholder="https://linkedin.com/in/your-profile" />
+                    </div>
+
+                    <!-- Submit -->
                     <button type="submit" class="btn-primary-full" id="signup-btn">VERIFIED SIGN UP</button>
+
+                    <!-- Status message area for success/error feedback -->
+                    <div id="signup-message" style="margin-top: 12px; text-align: center; font-size: 14px;"></div>
                 </form>
 
                 <div class="divider"><span>SECURE ENTRY</span></div>
@@ -112,6 +196,8 @@
     <script>
         /**
          * Switches between Sign In and Sign Up tabs.
+         * Toggles visibility of the sign-in and sign-up content panels,
+         * and updates the active tab styling accordingly.
          */
         function switchTab(tab) {
             const signinTab = document.getElementById('signin-tab');
@@ -134,19 +220,23 @@
 
         /**
          * Placeholder sign-in handler.
-         * Authentication is not implemented on the backend yet.
+         * IMPROVEMENT: A backend login/authentication endpoint (e.g., Spring Security with JWT)
+         * needs to be implemented before this can be connected. Currently shows an informational alert.
          */
         function handleSignIn(e) {
             e.preventDefault();
-            alert('Sign-in functionality is not yet connected to a backend authentication service.');
+            alert('Sign-in is not yet available. A backend authentication endpoint has not been implemented.');
             return false;
         }
 
         /**
-         * Placeholder sign-up handler.
-         * Registration is not implemented on the backend yet.
+         * Handles the sign-up form submission.
+         * Collects all form fields, builds a JSON payload matching the backend's
+         * StudentSignupRequest DTO, and sends a POST request to /studentSignUp.
+         * On success, notifies the user and redirects to the search page.
+         * On failure, displays the error message returned by the server.
          */
-        function handleSignUp(e) {
+        async function handleSignUp(e) {
             e.preventDefault();
 
             const emailInput = document.getElementById('reg-email');

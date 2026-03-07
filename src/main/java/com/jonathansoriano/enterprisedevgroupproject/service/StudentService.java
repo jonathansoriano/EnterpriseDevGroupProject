@@ -10,6 +10,7 @@ import com.jonathansoriano.enterprisedevgroupproject.repository.StudentRepositor
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 
 import java.util.ArrayList;
@@ -20,23 +21,32 @@ public class StudentService {
     private final StudentRepository repository;
     private final PasswordEncoder passwordEncoder;
 
-    public StudentService(StudentRepository repository){
+    // IMPROVEMENT: Instead of manually instantiating BCryptPasswordEncoder here,
+    // consider
+    // defining a @Bean PasswordEncoder in a @Configuration class (e.g.,
+    // SecurityConfig).
+    // This allows Spring to manage its lifecycle and makes it easier to mock in
+    // unit tests.
+    public StudentService(StudentRepository repository) {
         this.repository = repository;
-        this.passwordEncoder = new BCryptPasswordEncoder(); // We instantiate it here once in the constructor, so we don't have to instantiate it every time we use it inside this class.
+        this.passwordEncoder = new BCryptPasswordEncoder();
     }
 
     /**
-     * Searches for students based on the given request criteria and returns a list of matching students.
+     * Searches for students based on the given request criteria and returns a list
+     * of matching students.
      * If no students are found, a {@link SearchNotFoundException} is thrown.
      *
-     * @param request the {@link StudentRequest} object containing the search parameters for retrieving students.
+     * @param request the {@link StudentRequest} object containing the search
+     *                parameters for retrieving students.
      * @return a list of {@link Student} objects that match the search criteria.
-     * @throws SearchNotFoundException if no students are found matching the given criteria.
+     * @throws SearchNotFoundException if no students are found matching the given
+     *                                 criteria.
      */
-    public List<Student> find(StudentRequest request){
+    public List<Student> find(StudentRequest request) {
         List<Student> students = buildStudentListFromDtoList(repository.find(request));
 
-        if(CollectionUtils.isEmpty(students)){
+        if (CollectionUtils.isEmpty(students)) {
             throw new SearchNotFoundException("Student Not found!");
         }
         return students;
@@ -44,47 +54,73 @@ public class StudentService {
     }
 
     /**
-     * Inserts a new student into the system by creating corresponding entries in the user table
-     * and the student table. The student's password is hashed before insertion for security purposes.
+     * Inserts a new student into the system by creating corresponding entries in
+     * the user table
+     * and the student table. The student's password is hashed before insertion for
+     * security purposes.
      *
-     * @param student The {@link StudentSignupRequest} object containing the new student's details
-     *                such as name, email, resident information, university details, and password.
-     * @return A message indicating the success or failure of the student signup operation.
+     * @param student The {@link StudentSignupRequest} object containing the new
+     *                student's details
+     *                such as name, email, resident information, university details,
+     *                and password.
+     * @return A message indicating the success or failure of the student signup
+     *         operation.
      *         If successful, returns "Student Signup Successful!".
      *         Otherwise, an exception is thrown.
-     * @throws RuntimeException if the insertion into the student table or user table fails.
-     *                          Specific exceptions for these failures could be implemented in the future.
+     * @throws RuntimeException if the insertion into the student table or user
+     *                          table fails.
+     *                          Specific exceptions for these failures could be
+     *                          implemented in the future.
      */
-    public String insertNewStudent(StudentSignupRequest student){
-        //Logic to Hash the plan password before inserting into the app_user Table
+    // IMPROVEMENT: Add input validation here using @Valid and Jakarta Bean
+    // Validation annotations
+    // on StudentSignupRequest fields (e.g., @NotBlank, @Email, @Size(min=8) on
+    // password).
+    // This would catch invalid data before it reaches the database layer.
+    @Transactional
+    public String insertNewStudent(StudentSignupRequest student) {
+        // Step 1: Hash the plain-text password before storing it in the app_user table
         String hashedPassword = hashPlainTextPassword(student.getPassword());
-        //Create a new UserRequest object from the StudentSignupRequest object to be able to insert into the app_user Table
+
+        // Step 2: Build a UserRequest DTO from the signup request to insert into
+        // app_user table
         UserRequest userRequest = buildUserRequestFromStudentSignupRequest(student, hashedPassword);
-        //Logic to add a new user(student user) to the User Table (after testing try figuring out how to use a CompletableFuture for async performance)
+
+        // Step 3: Insert the user credentials into the app_user table first
+        // IMPROVEMENT: Check the return value — if userInsertionResult == 0, no row was
+        // inserted
+        // and we should throw an explicit exception rather than silently proceeding.
         int userInsertionResult = repository.insertNewUser(userRequest);
 
-
-        //Logic to add a new student to the Student Table
+        // Step 4: Insert the student profile into the student table
+        // IMPROVEMENT: Same as above — verify studentInsertionResult > 0 before
+        // returning success.
         int studentInsertionResult = repository.insertNewStudent(student);
 
         return "Student Signup Successful!";
     }
 
-    private String hashPlainTextPassword(String password){
+    private String hashPlainTextPassword(String password) {
         return passwordEncoder.encode(password);
     }
 
     /**
-     * Converts a {@link StudentSignupRequest} object into a {@link UserRequest} object.
-     * This method is used to prepare a user request for inserting a user into the system's user table.
-     * The resulting {@link UserRequest} includes the user's email, hashed password, and a default role of "USER".
+     * Converts a {@link StudentSignupRequest} object into a {@link UserRequest}
+     * object.
+     * This method is used to prepare a user request for inserting a user into the
+     * system's user table.
+     * The resulting {@link UserRequest} includes the user's email, hashed password,
+     * and a default role of "USER".
      *
-     * @param studentSignupRequest the source {@link StudentSignupRequest} containing the student's signup details,
+     * @param studentSignupRequest the source {@link StudentSignupRequest}
+     *                             containing the student's signup details,
      *                             such as email and plain text password.
-     * @param hashedPassword       the hashed version of the student's plain text password to ensure security.
+     * @param hashedPassword       the hashed version of the student's plain text
+     *                             password to ensure security.
      * @return a {@link UserRequest} object containing the mapped user data.
      */
-    private static UserRequest buildUserRequestFromStudentSignupRequest(StudentSignupRequest studentSignupRequest, String hashedPassword){
+    private static UserRequest buildUserRequestFromStudentSignupRequest(StudentSignupRequest studentSignupRequest,
+            String hashedPassword) {
         return UserRequest.builder()
                 .role("USER")
                 .email(studentSignupRequest.getEmail())
@@ -97,13 +133,19 @@ public class StudentService {
      * Each StudentDto in the input list is transformed into a corresponding Student
      * instance by invoking the buildStudentFromDto method.
      *
-     * @param dtoList the list of StudentDto objects to be converted into Student objects.
-     * @return a list of Student objects created from the given list of StudentDto objects.
+     * @param dtoList the list of StudentDto objects to be converted into Student
+     *                objects.
+     * @return a list of Student objects created from the given list of StudentDto
+     *         objects.
      */
-    static List<Student> buildStudentListFromDtoList(List<StudentDto> dtoList){
+    // IMPROVEMENT: This can be simplified using Java Streams:
+    // return dtoList.stream().map(StudentService::buildStudentFromDto).toList();
+    // Streams provide a more concise, functional approach to collection
+    // transformations.
+    static List<Student> buildStudentListFromDtoList(List<StudentDto> dtoList) {
         List<Student> studentList = new ArrayList<>();
 
-        for (StudentDto dto : dtoList){
+        for (StudentDto dto : dtoList) {
             studentList.add(buildStudentFromDto(dto));
         }
         return studentList;
@@ -111,12 +153,15 @@ public class StudentService {
 
     /**
      * Builds a {@link Student} object from a given {@link StudentDto}.
-     * The method maps the fields from the provided StudentDto to a new Student instance.
+     * The method maps the fields from the provided StudentDto to a new Student
+     * instance.
      *
-     * @param dto the {@link StudentDto} containing student data to be converted into a {@link Student}.
-     * @return a new {@link Student} object populated with the data from the provided {@link StudentDto}.
+     * @param dto the {@link StudentDto} containing student data to be converted
+     *            into a {@link Student}.
+     * @return a new {@link Student} object populated with the data from the
+     *         provided {@link StudentDto}.
      */
-    static Student buildStudentFromDto(StudentDto dto){
+    static Student buildStudentFromDto(StudentDto dto) {
         return Student.builder()
                 .firstName(dto.getFirstName())
                 .lastName(dto.getLastName())

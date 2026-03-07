@@ -1,5 +1,5 @@
 /* =========================================
-   STUDENT NETWORK - Premium Stylesheet v2
+   STUDENT NETWORK - Premium Stylesheet
    Tri-State University Directory
    ========================================= */
 
@@ -363,6 +363,16 @@ a {
 }
 
 /* Form Elements */
+/* Form Row — places two form groups side-by-side */
+.form-row {
+    display: flex;
+    gap: 12px;
+}
+
+.form-group-half {
+    flex: 1;
+}
+
 .form-group {
     margin-bottom: 18px;
 }
