@@ -88,8 +88,11 @@
                     <div class="form-group">
                         <label class="form-label" for="reg-email">UNIVERSITY EMAIL</label>
                         <input type="email" id="reg-email" name="email" class="form-input"
-                            placeholder="student@edu.university" required />
-                        <small class="form-hint">* Requires verification via .edu domain</small>
+                            placeholder="student@university.edu" pattern=".+\.edu$"
+                            title="Please use a valid .edu email address" required />
+                        <small class="form-hint">* Only .edu email addresses are accepted</small>
+                        <small class="form-error" id="email-error"
+                            style="display:none; color:#ef4444; margin-top:4px;"></small>
                     </div>
                     <div class="form-group">
                         <label class="form-label" for="reg-password">CREATE PASSWORD</label>
@@ -145,6 +148,25 @@
          */
         function handleSignUp(e) {
             e.preventDefault();
+
+            const emailInput = document.getElementById('reg-email');
+            const emailError = document.getElementById('email-error');
+            const email = emailInput.value.trim().toLowerCase();
+
+            // Clear previous error
+            emailError.style.display = 'none';
+            emailError.textContent = '';
+            emailInput.style.borderColor = '';
+
+            // Validate .edu email
+            if (!email.endsWith('.edu')) {
+                emailError.textContent = 'Only .edu email addresses are accepted. Please use your university email.';
+                emailError.style.display = 'block';
+                emailInput.style.borderColor = '#ef4444';
+                emailInput.focus();
+                return false;
+            }
+
             alert('Sign-up functionality is not yet connected to a backend registration service.');
             return false;
         }
