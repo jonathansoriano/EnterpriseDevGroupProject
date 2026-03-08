@@ -4,6 +4,9 @@
 FROM eclipse-temurin:21-jdk-alpine AS build
 WORKDIR /app
 
+# Fix vulnerabilities by updating Alpine packages
+RUN apk update && apk upgrade --no-cache
+
 # Add metadata labels
 LABEL maintainer="dharminpatel,jonathansoriano,matthewbrown,iankellenberger" \
     version="0.0.1-SNAPSHOT" \
@@ -26,6 +29,9 @@ RUN ./mvnw clean package -DskipTests -q
 # ============================================================
 FROM eclipse-temurin:21-jre-alpine AS runtime
 WORKDIR /app
+
+# Fix vulnerabilities
+RUN apk update && apk upgrade --no-cache
 
 # Create a non-root group and user for security
 RUN addgroup -S appgroup && adduser -S appuser -G appgroup
