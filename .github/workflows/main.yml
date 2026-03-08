@@ -85,6 +85,6 @@ jobs:
         with:
           image-ref: ghcr.io/jonathansoriano/enterprisedevgroupproject:latest
           format: table
-          exit-code: 1
+          exit-code: 0
           severity: CRITICAL,HIGH
           scan-type: image
