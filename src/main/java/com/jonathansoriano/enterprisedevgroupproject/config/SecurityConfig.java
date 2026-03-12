@@ -43,8 +43,8 @@ public class SecurityConfig {
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
             .authorizeHttpRequests(auth -> auth
-                .requestMatchers("/", "/index.html", "/about.html", "/login.html", "/css/**", "/studentSignUp").permitAll()
-                .requestMatchers("/findStudent", "/search.html").authenticated()
+                .requestMatchers("/", "/index.html", "/about.html", "/login.html", "/css/**", "/studentSignUp").permitAll() // Pages that dont require authentication
+                .requestMatchers("/findStudent", "/search.html").authenticated() // Pages that require authentication
                 .anyRequest().authenticated()
             )
             .formLogin(form -> form

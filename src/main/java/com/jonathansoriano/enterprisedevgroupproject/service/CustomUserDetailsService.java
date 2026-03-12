@@ -1,6 +1,7 @@
 package com.jonathansoriano.enterprisedevgroupproject.service;
 
 import com.jonathansoriano.enterprisedevgroupproject.dto.UserDto;
+import com.jonathansoriano.enterprisedevgroupproject.model.CustomerUserDetails;
 import com.jonathansoriano.enterprisedevgroupproject.repository.UserRepository;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.User;
@@ -24,11 +25,7 @@ public class CustomUserDetailsService implements UserDetailsService {
     public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
         UserDto userDto = userRepository.findByEmail(email)
                 .orElseThrow(() -> new UsernameNotFoundException("User not found with email: " + email));
-        
-        return User.builder()
-                .username(userDto.getEmail())
-                .password(userDto.getPassword())
-                .authorities(Collections.singletonList(new SimpleGrantedAuthority("ROLE_" + userDto.getRole())))
-                .build();
+
+        return new CustomerUserDetails(userDto);
     }
 }
