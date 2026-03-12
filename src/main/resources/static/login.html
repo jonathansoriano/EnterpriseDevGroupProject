@@ -63,7 +63,7 @@
 
             <!-- SIGN IN Form -->
             <div class="tab-content" id="signin-content">
-                <form id="signin-form" onsubmit="return handleSignIn(event)">
+                <form action="/login" method="post">
                     <div class="form-group">
                         <label class="form-label" for="username">UNIVERSITY EMAIL</label>
                         <input type="email" id="username" name="username" class="form-input"
@@ -74,6 +74,9 @@
                         <label class="form-label" for="password">PASSWORD</label>
                         <input type="password" id="password" name="password" class="form-input" placeholder="••••••••"
                             required />
+                    </div>
+                    <div id="login-error" style="display:none; color:#ef4444; margin-bottom:12px; font-size:14px;">
+                        Invalid email or password. Please try again.
                     </div>
                     <button type="submit" class="btn-primary-full" id="signin-btn">SIGN IN</button>
                 </form>
@@ -218,16 +221,19 @@
             }
         }
 
-        /**
-         * Placeholder sign-in handler.
-         * IMPROVEMENT: A backend login/authentication endpoint (e.g., Spring Security with JWT)
-         * needs to be implemented before this can be connected. Currently shows an informational alert.
-         */
-        function handleSignIn(e) {
-            e.preventDefault();
-            alert('Sign-in is not yet available. A backend authentication endpoint has not been implemented.');
-            return false;
-        }
+        // Check URL parameters for error or logout messages
+        window.addEventListener('DOMContentLoaded', function() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const errorDiv = document.getElementById('login-error');
+
+            if (urlParams.has('error')) {
+                errorDiv.style.display = 'block';
+            }
+
+            if (urlParams.has('logout')) {
+                alert('You have been logged out successfully.');
+            }
+        });
 
         /**
          * Handles the sign-up form submission.

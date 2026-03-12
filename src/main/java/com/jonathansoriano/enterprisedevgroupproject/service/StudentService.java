@@ -7,7 +7,6 @@ import com.jonathansoriano.enterprisedevgroupproject.dto.StudentDto;
 import com.jonathansoriano.enterprisedevgroupproject.exception.SearchNotFoundException;
 import com.jonathansoriano.enterprisedevgroupproject.model.Student;
 import com.jonathansoriano.enterprisedevgroupproject.repository.StudentRepository;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -21,15 +20,9 @@ public class StudentService {
     private final StudentRepository repository;
     private final PasswordEncoder passwordEncoder;
 
-    // IMPROVEMENT: Instead of manually instantiating BCryptPasswordEncoder here,
-    // consider
-    // defining a @Bean PasswordEncoder in a @Configuration class (e.g.,
-    // SecurityConfig).
-    // This allows Spring to manage its lifecycle and makes it easier to mock in
-    // unit tests.
-    public StudentService(StudentRepository repository) {
+    public StudentService(StudentRepository repository, PasswordEncoder passwordEncoder) {
         this.repository = repository;
-        this.passwordEncoder = new BCryptPasswordEncoder();
+        this.passwordEncoder = passwordEncoder;
     }
 
     /**
