@@ -14,7 +14,7 @@ public class UserRepository {
     private static final String FIND_USER_BY_EMAIL = """
             SELECT id, role, email, password
             FROM app_user
-            WHERE email = :email
+            WHERE 1 = 1 AND email = :email
             """;
     
     private final NamedParameterJdbcTemplate jdbcTemplate;
