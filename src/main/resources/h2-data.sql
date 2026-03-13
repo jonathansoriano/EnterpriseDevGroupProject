@@ -120,7 +120,7 @@ VALUES ('Zachary', 'Nelson', 'Montgomery', 'OH', 8, 'Senior', 'Youth Ministry', 
 -- Insert Users (all with password: "passw0rd!" hashed via BCryptPasswordEncoder with cost factor 10. ALl have the same password for simplicity and testing purposes only)
 -- University of Cincinnati
 INSERT INTO app_user ( role, email, password)
-VALUES ('USER', 'sarah.johnson@mail.uc.edu', '$2a$10$N9qo8uLOickgx2ZMRZoMyeIjZAgcfl7p92ldGxad68LJZdL17lhWy');
+VALUES ('USER', 'sarah.johnson@mail.uc.edu', '$2a$10$cT37ge3YHk2NxIjDvUpns.CucoBA8cQ.DzJXoqcIVJ6nQUZpB9SVa');
 INSERT INTO app_user ( role, email, password)
 VALUES ('USER', 'michael.chen@mail.uc.edu', '$2a$10$o.pLS/2KqLaqbfCKJsW2MOzrnkcrPxbvStGyYNYh0Avog1fZFo8f.');
 INSERT INTO app_user ( role, email, password)
