@@ -2,11 +2,9 @@ package com.jonathansoriano.enterprisedevgroupproject.repository;
 
 import com.jonathansoriano.enterprisedevgroupproject.domain.StudentRequest;
 import com.jonathansoriano.enterprisedevgroupproject.domain.StudentSignupRequest;
-import com.jonathansoriano.enterprisedevgroupproject.domain.UserRequest;
 import com.jonathansoriano.enterprisedevgroupproject.dto.StudentDto;
 import com.jonathansoriano.enterprisedevgroupproject.util.SqlUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.jdbc.core.BeanPropertyRowMapper;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
@@ -14,9 +12,6 @@ import org.springframework.stereotype.Repository;
 
 import java.util.List;
 
-// IMPROVEMENT: The unused import DataIntegrityViolationException should be used to catch
-// duplicate-email violations explicitly, rather than catching the generic Exception.
-// e.g., catch (DataIntegrityViolationException ex) { throw new DuplicateEmailException(...); }
 @Repository
 public class StudentRepository {
     // Alias columns to match StudentDto properties (camelCase), otherwise you'll
@@ -48,11 +43,6 @@ public class StudentRepository {
     public static final String INSERT_NEW_STUDENT = """
             INSERT INTO student (first_name, last_name, resident_city, resident_state, university_id, grade, major,email, social_media_link)
             VALUES (:firstName, :lastName, :residentCity, :residentState, :universityId, :grade, :major, :email, :socialMediaLink)
-            """;
-
-    public static final String INSERT_NEW_APP_USER = """
-            INSERT INTO app_user (role, email, password)
-            VALUES (:role, :email, :password)
             """;
 
     private final NamedParameterJdbcTemplate jdbcTemplate;
@@ -97,12 +87,6 @@ public class StudentRepository {
                 .append(SqlUtils.andAddCondition(AND_MAJOR, request.getMajor()));
         // jdbctemplate talks to the database with your query and returns a List that
         // you specify (e.g. StudentDto).
-        // IMPROVEMENT: Consider adding LIMIT/OFFSET pagination to prevent returning
-        // excessively
-        // large result sets. This can be done by appending "LIMIT :limit OFFSET
-        // :offset" to the SQL
-        // and adding corresponding parameters. The controller would accept page/size
-        // query params.
         return jdbcTemplate.query(sql.toString(), params, new BeanPropertyRowMapper<>(StudentDto.class, true));
     }
 
@@ -143,28 +127,4 @@ public class StudentRepository {
         }
     }
 
-    /**
-     * Inserts a new user record into the database, specifically inserts a new user
-     * into the app_user table, using the details provided in the
-     * {@link UserRequest} object.
-     * The method utilizes the specified role, email, and password from the request
-     * object to perform the insertion.
-     *
-     * @param userRequest the {@link UserRequest} object containing the user's role,
-     *                    email, and password.
-     * @return an integer indicating the number of rows affected by the insert
-     *         operation. A value greater
-     *         than 0 indicates that the operation was successful
-     */
-    public int insertNewUser(UserRequest userRequest) {
-        MapSqlParameterSource params = new MapSqlParameterSource()
-                .addValue("role", userRequest.getRole())
-                .addValue("email", userRequest.getEmail())
-                .addValue("password", userRequest.getPassword());
-        try {
-            return jdbcTemplate.update(INSERT_NEW_APP_USER, params);
-        } catch (Exception ex) {
-            throw new RuntimeException("User insertion failed due to a database error", ex);
-        }
-    }
 }

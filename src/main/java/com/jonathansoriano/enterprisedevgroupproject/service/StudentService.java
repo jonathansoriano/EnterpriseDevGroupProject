@@ -7,6 +7,7 @@ import com.jonathansoriano.enterprisedevgroupproject.dto.StudentDto;
 import com.jonathansoriano.enterprisedevgroupproject.exception.SearchNotFoundException;
 import com.jonathansoriano.enterprisedevgroupproject.model.Student;
 import com.jonathansoriano.enterprisedevgroupproject.repository.StudentRepository;
+import com.jonathansoriano.enterprisedevgroupproject.repository.UserRepository;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -17,11 +18,13 @@ import java.util.List;
 
 @Service
 public class StudentService {
-    private final StudentRepository repository;
+    private final StudentRepository studentRepository;
+    private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
 
-    public StudentService(StudentRepository repository) {
-        this.repository = repository;
+    public StudentService(StudentRepository studentRepository, UserRepository userRepository) {
+        this.studentRepository = studentRepository;
+        this.userRepository = userRepository;
         this.passwordEncoder = new BCryptPasswordEncoder();
     }
 
@@ -37,7 +40,7 @@ public class StudentService {
      *                                 criteria.
      */
     public List<Student> find(StudentRequest request) {
-        List<Student> students = buildStudentListFromDtoList(repository.find(request));
+        List<Student> students = buildStudentListFromDtoList(studentRepository.find(request));
 
         if (CollectionUtils.isEmpty(students)) {
             throw new SearchNotFoundException("Student Not found!");
@@ -74,10 +77,10 @@ public class StudentService {
         UserRequest userRequest = buildUserRequestFromStudentSignupRequest(student, hashedPassword);
 
         // Step 3: Insert the user credentials into the app_user table first
-        int userInsertionResult = repository.insertNewUser(userRequest);
+        int userInsertionResult = userRepository.insertNewUser(userRequest);
 
         // Step 4: Insert the student profile into the student table
-        int studentInsertionResult = repository.insertNewStudent(student);
+        int studentInsertionResult = studentRepository.insertNewStudent(student);
 
         return "Student Signup Successful!";
     }

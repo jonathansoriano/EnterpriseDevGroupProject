@@ -2,11 +2,11 @@ package com.jonathansoriano.enterprisedevgroupproject.service;
 
 import com.jonathansoriano.enterprisedevgroupproject.domain.StudentRequest;
 import com.jonathansoriano.enterprisedevgroupproject.domain.StudentSignupRequest;
-import com.jonathansoriano.enterprisedevgroupproject.domain.UserRequest;
 import com.jonathansoriano.enterprisedevgroupproject.dto.StudentDto;
 import com.jonathansoriano.enterprisedevgroupproject.exception.SearchNotFoundException;
 import com.jonathansoriano.enterprisedevgroupproject.model.Student;
 import com.jonathansoriano.enterprisedevgroupproject.repository.StudentRepository;
+import com.jonathansoriano.enterprisedevgroupproject.repository.UserRepository;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -25,7 +25,9 @@ import static org.mockito.Mockito.when;
 @ExtendWith(MockitoExtension.class)
 class StudentServiceTest {
     @Mock
-    StudentRepository repository;
+    StudentRepository studentRepository;
+    @Mock
+    UserRepository userRepository;
 
     @InjectMocks
     StudentService service;
@@ -61,7 +63,7 @@ class StudentServiceTest {
         List<StudentDto> expectDtoList = List.of(studentDto);
 
         //Mocking up the expected behavior for when the repository.find(...) gets called
-        when(repository.find(request)).thenReturn(expectDtoList);
+        when(studentRepository.find(request)).thenReturn(expectDtoList);
 
         //Act (Testing the method we are testing and check if what we expect matches with what actually happens
         List<Student> actualList = service.find(request);
@@ -90,7 +92,7 @@ class StudentServiceTest {
                 .build();
         //If the repository returns an empty list, we will hit a check if the list is empty, return a
         //SearchNotFoundException
-        when(repository.find(request)).thenReturn(Collections.emptyList());
+        when(studentRepository.find(request)).thenReturn(Collections.emptyList());
 
         //Act and Assert (The executable is our act part of the test)
         assertThrows(SearchNotFoundException.class, ()-> service.find(request));
@@ -123,8 +125,8 @@ class StudentServiceTest {
         int expectedResponseFromUserRepository = 1;
 
         // Mocking up the expected behavior for when the repository.insertNewStudent(...) gets called and when the repository.insertNewUser(...) gets called
-        when(repository.insertNewStudent(studentSignupRequest)).thenReturn(expectedResponseFromStudentRepository);
-        when(repository.insertNewUser(any())).thenReturn(expectedResponseFromUserRepository);
+        when(studentRepository.insertNewStudent(studentSignupRequest)).thenReturn(expectedResponseFromStudentRepository);
+        when(userRepository.insertNewUser(any())).thenReturn(expectedResponseFromUserRepository);
 
         //Act
         String actualReturnValueFromInsertNewStudent = service.insertNewStudent(studentSignupRequest);

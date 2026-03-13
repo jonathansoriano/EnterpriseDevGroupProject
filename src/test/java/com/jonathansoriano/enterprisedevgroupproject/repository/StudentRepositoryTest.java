@@ -4,7 +4,6 @@ import com.jonathansoriano.enterprisedevgroupproject.domain.StudentRequest;
 import com.jonathansoriano.enterprisedevgroupproject.domain.StudentSignupRequest;
 import com.jonathansoriano.enterprisedevgroupproject.domain.UserRequest;
 import com.jonathansoriano.enterprisedevgroupproject.dto.StudentDto;
-import com.jonathansoriano.enterprisedevgroupproject.model.Student;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -15,7 +14,6 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.util.CollectionUtils;
 
-import java.util.Collections;
 import java.util.List;
 import java.util.stream.Stream;
 
@@ -26,7 +24,9 @@ import static org.junit.jupiter.api.Assertions.*;
 class StudentRepositoryTest {
 
     @Autowired
-    StudentRepository repository;
+    StudentRepository studentRepository;
+    @Autowired
+    UserRepository userRepository;
 
 
     @Test
@@ -36,7 +36,7 @@ class StudentRepositoryTest {
                                                 .build();
 
         //Act
-        List<StudentDto> actualList = repository.find(request);
+        List<StudentDto> actualList = studentRepository.find(request);
         //Assert (33 Total students in the h2 db, so I'm expecting 33 items in the list)
         assertEquals(33, actualList.size());
     }
@@ -54,7 +54,7 @@ class StudentRepositoryTest {
                 .build();
 
         //Act
-        List<StudentDto> actualList = repository.find(request);
+        List<StudentDto> actualList = studentRepository.find(request);
         //Assert
         assertTrue(CollectionUtils.isEmpty(actualList));
 
@@ -71,7 +71,7 @@ class StudentRepositoryTest {
                 .firstName(firstName)
                 .build();
         //Act
-        List<StudentDto> actualList = repository.find(request);
+        List<StudentDto> actualList = studentRepository.find(request);
         //Assert
         assertEquals(expectSize, actualList.size());
 
@@ -98,7 +98,7 @@ class StudentRepositoryTest {
                 .lastName(lastName)
                 .build();
         //Act
-        List<StudentDto> actualList = repository.find(request);
+        List<StudentDto> actualList = studentRepository.find(request);
         //Assert
         assertEquals(expectSize, actualList.size());
 
@@ -125,7 +125,7 @@ class StudentRepositoryTest {
                 .residentCity(city)
                 .build();
         //Act
-        List<StudentDto> actualList = repository.find(request);
+        List<StudentDto> actualList = studentRepository.find(request);
         //Assert
         assertEquals(expectSize, actualList.size());
 
@@ -148,7 +148,7 @@ class StudentRepositoryTest {
                 .residentState("OH")
                 .build();
         //Act
-        List<StudentDto> actualList = repository.find(request);
+        List<StudentDto> actualList = studentRepository.find(request);
         //Assert
         assertEquals(25, actualList.size());
     }
@@ -164,7 +164,7 @@ class StudentRepositoryTest {
                 .universityName(university)
                 .build();
         //Act
-        List<StudentDto> actualList = repository.find(request);
+        List<StudentDto> actualList = studentRepository.find(request);
         //Assert
         assertEquals(expectSize, actualList.size());
 
@@ -187,7 +187,7 @@ class StudentRepositoryTest {
                 .grade("Senior")
                 .build();
         //Act
-        List<StudentDto> actualList = repository.find(request);
+        List<StudentDto> actualList = studentRepository.find(request);
         //Assert
         assertEquals(8, actualList.size());
 
@@ -210,7 +210,7 @@ class StudentRepositoryTest {
                 .build();
         int expectRowsAffected = 1;
         //Act
-        int actualRowsAffected = repository.insertNewStudent(request);
+        int actualRowsAffected = studentRepository.insertNewStudent(request);
         //Assert
         assertEquals(expectRowsAffected, actualRowsAffected);
     }
@@ -231,7 +231,7 @@ class StudentRepositoryTest {
                 .socialMediaLink(null)
                 .build();
         //Act and Assert
-        assertThrows(RuntimeException.class, ()-> repository.insertNewStudent(request));
+        assertThrows(RuntimeException.class, ()-> studentRepository.insertNewStudent(request));
     }
 
     @Test
@@ -244,7 +244,7 @@ class StudentRepositoryTest {
                 .build();
         int expectRowsAffected = 1;
         //Act
-        int actualRowsAffected = repository.insertNewUser(userRequest);
+        int actualRowsAffected = userRepository.insertNewUser(userRequest);
         //Assert
         assertEquals(expectRowsAffected, actualRowsAffected);
     }
@@ -258,6 +258,6 @@ class StudentRepositoryTest {
                 .password(null)
                 .build();
         //Assert
-        assertThrows(RuntimeException.class, ()-> repository.insertNewUser(request));
+        assertThrows(RuntimeException.class, ()-> userRepository.insertNewUser(request));
     }
 }
