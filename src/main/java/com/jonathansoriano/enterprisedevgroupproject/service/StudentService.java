@@ -7,9 +7,9 @@ import com.jonathansoriano.enterprisedevgroupproject.dto.StudentDto;
 import com.jonathansoriano.enterprisedevgroupproject.exception.SearchNotFoundException;
 import com.jonathansoriano.enterprisedevgroupproject.model.Student;
 import com.jonathansoriano.enterprisedevgroupproject.repository.StudentRepository;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 
 import java.util.ArrayList;
@@ -20,9 +20,9 @@ public class StudentService {
     private final StudentRepository repository;
     private final PasswordEncoder passwordEncoder;
 
-    public StudentService(StudentRepository repository, PasswordEncoder passwordEncoder) {
+    public StudentService(StudentRepository repository) {
         this.repository = repository;
-        this.passwordEncoder = passwordEncoder;
+        this.passwordEncoder = new BCryptPasswordEncoder();
     }
 
     /**
@@ -65,12 +65,6 @@ public class StudentService {
      *                          Specific exceptions for these failures could be
      *                          implemented in the future.
      */
-    // IMPROVEMENT: Add input validation here using @Valid and Jakarta Bean
-    // Validation annotations
-    // on StudentSignupRequest fields (e.g., @NotBlank, @Email, @Size(min=8) on
-    // password).
-    // This would catch invalid data before it reaches the database layer.
-    @Transactional
     public String insertNewStudent(StudentSignupRequest student) {
         // Step 1: Hash the plain-text password before storing it in the app_user table
         String hashedPassword = hashPlainTextPassword(student.getPassword());
@@ -80,14 +74,9 @@ public class StudentService {
         UserRequest userRequest = buildUserRequestFromStudentSignupRequest(student, hashedPassword);
 
         // Step 3: Insert the user credentials into the app_user table first
-        // IMPROVEMENT: Check the return value — if userInsertionResult == 0, no row was
-        // inserted
-        // and we should throw an explicit exception rather than silently proceeding.
         int userInsertionResult = repository.insertNewUser(userRequest);
 
         // Step 4: Insert the student profile into the student table
-        // IMPROVEMENT: Same as above — verify studentInsertionResult > 0 before
-        // returning success.
         int studentInsertionResult = repository.insertNewStudent(student);
 
         return "Student Signup Successful!";
