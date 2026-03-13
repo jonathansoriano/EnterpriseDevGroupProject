@@ -20,7 +20,7 @@ public class CustomerUserDetails implements UserDetails {
     }
 
     @Override
-    public @Nullable String getPassword() {
+    public String getPassword() {
         return userDto.getPassword();
     }
 

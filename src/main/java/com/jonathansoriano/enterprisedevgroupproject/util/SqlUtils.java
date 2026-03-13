@@ -12,8 +12,4 @@ public class SqlUtils {
                 ? String.format(" %s", sql)
                 : StringUtils.EMPTY;
     }
-
-//    public static <T> String AddJoinCondition(String sql, T value){
-//        return
-//    }
 }

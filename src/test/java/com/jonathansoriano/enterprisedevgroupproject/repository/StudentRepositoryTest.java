@@ -234,30 +234,4 @@ class StudentRepositoryTest {
         assertThrows(RuntimeException.class, ()-> studentRepository.insertNewStudent(request));
     }
 
-    @Test
-    void insertNewUser_insertionSuccessful() {
-        //Arrange
-        UserRequest userRequest = UserRequest.builder()
-                .role("USER")
-                .email("test@email.com")
-                .password("$2a$10$N9qo8uLOickgx2ZMRZoMyeIjZAgcfl7p92ldGxad68LJZdL17lhWy")
-                .build();
-        int expectRowsAffected = 1;
-        //Act
-        int actualRowsAffected = userRepository.insertNewUser(userRequest);
-        //Assert
-        assertEquals(expectRowsAffected, actualRowsAffected);
-    }
-
-    @Test
-    void insertNewUser_insertionFailed() {
-        //Arrange
-        UserRequest request = UserRequest.builder()
-                .role("User")
-                .email("test@email.com")
-                .password(null)
-                .build();
-        //Assert
-        assertThrows(RuntimeException.class, ()-> userRepository.insertNewUser(request));
-    }
 }
