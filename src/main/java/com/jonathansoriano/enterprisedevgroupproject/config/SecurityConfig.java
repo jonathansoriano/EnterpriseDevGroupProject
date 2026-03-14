@@ -1,6 +1,5 @@
 package com.jonathansoriano.enterprisedevgroupproject.config;
 
-import com.jonathansoriano.enterprisedevgroupproject.service.CustomUserDetailsService;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -11,6 +10,8 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
+
+import com.jonathansoriano.enterprisedevgroupproject.service.CustomUserDetailsService;
 
 /**
  * Spring Security configuration class that defines authentication and authorization settings.

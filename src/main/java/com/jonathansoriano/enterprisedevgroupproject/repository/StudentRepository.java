@@ -20,6 +20,7 @@ import java.util.List;
  * @version [Version]
  * @since [Release Version]
  */
+
 @Repository
 public class StudentRepository {
     // Alias columns to match StudentDto properties (camelCase), otherwise you'll

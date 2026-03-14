@@ -1,6 +1,5 @@
 package com.jonathansoriano.enterprisedevgroupproject.exception;
 
-import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.core.Ordered;
 import org.springframework.core.annotation.Order;
 import org.springframework.http.HttpStatus;
@@ -8,19 +7,22 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 
-// This class acts as a global exception handler for the entire application.
-// It intercepts exceptions thrown from controllers/services and maps them to structured HTTP responses.
-// IMPROVEMENT: Add a Logger (e.g., @Slf4j from Lombok) and log each caught exception.
-// Without logging, exceptions are silently converted to HTTP responses and the root cause
-// is never recorded in application logs, making debugging very difficult.
-/**
+import jakarta.servlet.http.HttpServletRequest;
+
+/*
+ * This class acts as a global exception handler for the entire application.
+ * It intercepts exceptions thrown from controllers/services and maps them to structured HTTP responses.
  * Global exception handler that translates application exceptions into structured HTTP responses.
  * Catches exceptions from controllers and services and maps them to appropriate error responses.
  *
+ * IMPROVEMENT: Add a Logger (e.g., @Slf4j from Lombok) and log each caught exception.
+ * Without logging, exceptions are silently converted to HTTP responses and the root cause
+ * is never recorded in application logs, making debugging very difficult.
  * @author [Author Name]
  * @version [Version]
  * @since [Release Version]
  */
+
 @ControllerAdvice()
 @Order(Ordered.HIGHEST_PRECEDENCE)
 public class ExceptionTranslator {

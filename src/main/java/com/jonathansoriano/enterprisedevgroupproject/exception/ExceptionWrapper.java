@@ -1,11 +1,12 @@
 package com.jonathansoriano.enterprisedevgroupproject.exception;
 
-import lombok.Data;
-import org.springframework.http.HttpStatus;
-
 import java.time.LocalDateTime;
 
-/**
+import org.springframework.http.HttpStatus;
+
+import lombok.Data;
+
+/*
  * Wrapper class for structuring exception information in HTTP error responses.
  * Provides consistent error response format with timestamp, status code, error message, and request path.
  *

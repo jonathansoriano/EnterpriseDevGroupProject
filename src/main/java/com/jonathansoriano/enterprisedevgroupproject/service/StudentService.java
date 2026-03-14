@@ -4,6 +4,7 @@ import com.jonathansoriano.enterprisedevgroupproject.domain.StudentRequest;
 import com.jonathansoriano.enterprisedevgroupproject.domain.StudentSignupRequest;
 import com.jonathansoriano.enterprisedevgroupproject.domain.UserRequest;
 import com.jonathansoriano.enterprisedevgroupproject.dto.StudentDto;
+import com.jonathansoriano.enterprisedevgroupproject.exception.InvalidEmailDomainException;
 import com.jonathansoriano.enterprisedevgroupproject.exception.SearchNotFoundException;
 import com.jonathansoriano.enterprisedevgroupproject.model.Student;
 import com.jonathansoriano.enterprisedevgroupproject.repository.StudentRepository;
@@ -71,12 +72,16 @@ public class StudentService {
      *         operation.
      *         If successful, returns "Student Signup Successful!".
      *         Otherwise, an exception is thrown.
+     * @throws InvalidEmailDomainException if the email does not have a .edu domain.
      * @throws RuntimeException if the insertion into the student table or user
      *                          table fails.
      *                          Specific exceptions for these failures could be
      *                          implemented in the future.
      */
     public String insertNewStudent(StudentSignupRequest student) {
+        // Step 0: Validate that email has .edu domain
+        validateEducationalEmailDomain(student.getEmail());
+
         // Step 1: Hash the plain-text password before storing it in the app_user table
         String hashedPassword = hashPlainTextPassword(student.getPassword());
 
@@ -91,6 +96,19 @@ public class StudentService {
         int studentInsertionResult = studentRepository.insertNewStudent(student);
 
         return "Student Signup Successful!";
+    }
+
+    /**
+     * Validates that the provided email address has an educational domain (.edu).
+     * Only educational institution email addresses are allowed for student registration.
+     *
+     * @param email the email address to validate
+     * @throws InvalidEmailDomainException if the email does not contain a .edu domain
+     */
+    private void validateEducationalEmailDomain(String email) {
+        if (email == null || !email.endsWith(".edu")) {
+            throw new InvalidEmailDomainException("Email must have a .edu domain for student registration.");
+        }
     }
 
     private String hashPlainTextPassword(String password) {
