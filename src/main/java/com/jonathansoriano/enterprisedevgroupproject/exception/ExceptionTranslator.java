@@ -13,6 +13,14 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 // IMPROVEMENT: Add a Logger (e.g., @Slf4j from Lombok) and log each caught exception.
 // Without logging, exceptions are silently converted to HTTP responses and the root cause
 // is never recorded in application logs, making debugging very difficult.
+/**
+ * Global exception handler that translates application exceptions into structured HTTP responses.
+ * Catches exceptions from controllers and services and maps them to appropriate error responses.
+ *
+ * @author [Author Name]
+ * @version [Version]
+ * @since [Release Version]
+ */
 @ControllerAdvice()
 @Order(Ordered.HIGHEST_PRECEDENCE)
 public class ExceptionTranslator {

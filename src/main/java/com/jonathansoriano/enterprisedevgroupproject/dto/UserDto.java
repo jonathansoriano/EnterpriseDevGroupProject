@@ -5,6 +5,14 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+/**
+ * Data transfer object for representing user information transferred between layers.
+ * Contains user identification, role, and authentication credentials.
+ *
+ * @author [Author Name]
+ * @version [Version]
+ * @since [Release Version]
+ */
 @Data
 @AllArgsConstructor
 @NoArgsConstructor

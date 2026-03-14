@@ -9,6 +9,14 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
+/**
+ * Custom implementation of Spring Security's UserDetails interface.
+ * Wraps UserDto to provide user authentication and authorization details.
+ *
+ * @author [Author Name]
+ * @version [Version]
+ * @since [Release Version]
+ */
 public class CustomerUserDetails implements UserDetails {
     private final UserDto userDto;
     public CustomerUserDetails(UserDto userDto) {

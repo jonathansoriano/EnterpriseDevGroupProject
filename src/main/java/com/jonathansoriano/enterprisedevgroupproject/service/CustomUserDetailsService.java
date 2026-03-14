@@ -13,6 +13,14 @@ import org.springframework.stereotype.Service;
 import java.util.Collections;
 import java.util.List;
 
+/**
+ * Custom implementation of Spring Security's UserDetailsService.
+ * Loads user authentication details from the repository for security authentication.
+ *
+ * @author [Author Name]
+ * @version [Version]
+ * @since [Release Version]
+ */
 @Service
 public class CustomUserDetailsService implements UserDetailsService {
     

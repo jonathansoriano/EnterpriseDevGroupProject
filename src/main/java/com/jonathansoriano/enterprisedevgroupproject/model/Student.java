@@ -9,7 +9,14 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-//This is the class that will be used to display student information to the UI
+/**
+ * Model class representing a student entity with profile and academic information.
+ * Used to display and manage student information throughout the application.
+ *
+ * @author [Author Name]
+ * @version [Version]
+ * @since [Release Version]
+ */
 public class Student {
     //Got rid of studentID
     private String firstName;

@@ -5,6 +5,14 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+/**
+ * Data transfer object representing a student signup request with registration details.
+ * Encapsulates student profile information and authentication credentials for account creation.
+ *
+ * @author [Author Name]
+ * @version [Version]
+ * @since [Release Version]
+ */
 @Data
 @NoArgsConstructor
 @AllArgsConstructor

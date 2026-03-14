@@ -14,6 +14,14 @@ import java.util.List;
 // method return value is automatically serialized as JSON in the HTTP response body.
 // IMPROVEMENT: Consider grouping endpoints under a versioned base path (e.g., @RequestMapping("/api/v1"))
 // for cleaner API versioning and to separate API routes from static resource paths.
+/**
+ * REST controller that handles HTTP requests related to student operations.
+ * Provides endpoints for searching, retrieving, and managing student information.
+ *
+ * @author [Author Name]
+ * @version [Version]
+ * @since [Release Version]
+ */
 @RestController
 @RequestMapping("/")
 public class StudentController {

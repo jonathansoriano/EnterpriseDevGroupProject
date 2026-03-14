@@ -9,7 +9,14 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-//This is the class that will be used to create a new user in the app_user table.
+/**
+ * Data transfer object representing a user creation request.
+ * Contains user role, email, and password for new user account creation.
+ *
+ * @author [Author Name]
+ * @version [Version]
+ * @since [Release Version]
+ */
 public class UserRequest {
     private String role;
     private String email;

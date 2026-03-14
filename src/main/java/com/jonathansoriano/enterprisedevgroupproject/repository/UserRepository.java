@@ -10,6 +10,14 @@ import org.springframework.stereotype.Repository;
 import java.util.List;
 import java.util.Optional;
 
+/**
+ * Repository class for database operations on User entities.
+ * Provides methods for user authentication and account management using JDBC.
+ *
+ * @author [Author Name]
+ * @version [Version]
+ * @since [Release Version]
+ */
 @Repository
 public class UserRepository {
     

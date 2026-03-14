@@ -5,6 +5,14 @@ import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
+/**
+ * Main Spring Boot application entry point for the Enterprise Dev Group Project.
+ * Initializes and runs the Spring Boot application with profile-aware configuration.
+ *
+ * @author [Author Name]
+ * @version [Version]
+ * @since [Release Version]
+ */
 @SpringBootApplication
 public class EnterpriseDevGroupProjectApplication implements CommandLineRunner {
 

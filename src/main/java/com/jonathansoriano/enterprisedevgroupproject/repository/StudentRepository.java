@@ -12,6 +12,14 @@ import org.springframework.stereotype.Repository;
 
 import java.util.List;
 
+/**
+ * Repository class for database operations on Student entities.
+ * Provides methods for searching, retrieving, and managing student records using JDBC.
+ *
+ * @author [Author Name]
+ * @version [Version]
+ * @since [Release Version]
+ */
 @Repository
 public class StudentRepository {
     // Alias columns to match StudentDto properties (camelCase), otherwise you'll

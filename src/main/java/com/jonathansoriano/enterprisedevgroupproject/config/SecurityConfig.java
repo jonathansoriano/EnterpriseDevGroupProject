@@ -12,6 +12,14 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 
+/**
+ * Spring Security configuration class that defines authentication and authorization settings.
+ * Configures password encoding, authentication provider, and security filter chain.
+ *
+ * @author [Author Name]
+ * @version [Version]
+ * @since [Release Version]
+ */
 @Configuration
 @EnableWebSecurity
 public class SecurityConfig {

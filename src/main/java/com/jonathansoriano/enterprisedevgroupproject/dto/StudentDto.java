@@ -5,6 +5,14 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+/**
+ * Data transfer object for representing student information transferred between layers.
+ * Contains student profile details and academic information.
+ *
+ * @author [Author Name]
+ * @version [Version]
+ * @since [Release Version]
+ */
 @Data
 @AllArgsConstructor
 @NoArgsConstructor

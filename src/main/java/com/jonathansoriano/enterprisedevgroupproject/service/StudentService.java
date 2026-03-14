@@ -16,6 +16,14 @@ import org.springframework.util.CollectionUtils;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Business service layer for student-related operations.
+ * Handles student search, retrieval, account creation, and data validation logic.
+ *
+ * @author [Author Name]
+ * @version [Version]
+ * @since [Release Version]
+ */
 @Service
 public class StudentService {
     private final StudentRepository studentRepository;
