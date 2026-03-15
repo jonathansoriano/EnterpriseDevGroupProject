@@ -10,6 +10,9 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
+import jakarta.validation.Valid;
+
+
 // The @RestController annotation combines @Controller and @ResponseBody, meaning every
 // method return value is automatically serialized as JSON in the HTTP response body.
 // IMPROVEMENT: Consider grouping endpoints under a versioned base path (e.g., @RequestMapping("/api/v1"))
@@ -81,7 +84,7 @@ public class StudentController {
     // Also consider adding @Slf4j (Lombok) and logging the signup attempt for
     // audit/monitoring purposes.
     @PostMapping("/studentSignUp")
-    public ResponseEntity<String> createNewStudent(@RequestBody StudentSignupRequest student) {
+    public ResponseEntity<String> createNewStudent(@Valid @RequestBody StudentSignupRequest student) {
 
         String successfulInsertionMessage = service.insertNewStudent(student);
 
