@@ -49,7 +49,12 @@ public class StudentService {
      *                                 criteria.
      */
     public List<Student> find(StudentRequest request) {
-        List<Student> students = buildStudentListFromDtoList(studentRepository.find(request));
+        // NULL CHECK: Validate repository result before proceeding
+        List<StudentDto> dtoList = studentRepository.find(request);
+        if (dtoList == null) {
+            throw new SearchNotFoundException("Student Not found!");
+        }
+        List<Student> students = buildStudentListFromDtoList(dtoList);
 
         if (CollectionUtils.isEmpty(students)) {
             throw new SearchNotFoundException("Student Not found!");
@@ -79,6 +84,10 @@ public class StudentService {
      *                          implemented in the future.
      */
     public String insertNewStudent(StudentSignupRequest student) {
+        // NULL CHECK: Validate input parameter
+        if (student == null) {
+            throw new IllegalArgumentException("StudentSignupRequest cannot be null");
+        }
         // Step 0: Validate that email has .edu domain
         validateEducationalEmailDomain(student.getEmail());
 
@@ -132,6 +141,13 @@ public class StudentService {
      */
     private static UserRequest buildUserRequestFromStudentSignupRequest(StudentSignupRequest studentSignupRequest,
             String hashedPassword) {
+        // NULL CHECK: Validate input parameters
+        if (studentSignupRequest == null) {
+            throw new IllegalArgumentException("StudentSignupRequest cannot be null");
+        }
+        if (hashedPassword == null) {
+            throw new IllegalArgumentException("Hashed password cannot be null");
+        }
         return UserRequest.builder()
                 .role("USER")
                 .email(studentSignupRequest.getEmail())
@@ -154,6 +170,10 @@ public class StudentService {
     // Streams provide a more concise, functional approach to collection
     // transformations.
     static List<Student> buildStudentListFromDtoList(List<StudentDto> dtoList) {
+        // NULL CHECK: Validate input parameter
+        if (dtoList == null) {
+            return new ArrayList<>();
+        }
         List<Student> studentList = new ArrayList<>();
 
         for (StudentDto dto : dtoList) {
@@ -173,6 +193,10 @@ public class StudentService {
      *         provided {@link StudentDto}.
      */
     static Student buildStudentFromDto(StudentDto dto) {
+        // NULL CHECK: Validate input parameter
+        if (dto == null) {
+            throw new IllegalArgumentException("StudentDto cannot be null");
+        }
         return Student.builder()
                 .firstName(dto.getFirstName())
                 .lastName(dto.getLastName())
