@@ -13,6 +13,9 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -21,6 +24,8 @@ public class StudentService {
     private final StudentRepository studentRepository;
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
+
+    private static final Logger logger = LoggerFactory.getLogger(StudentService.class);
 
     public StudentService(StudentRepository studentRepository, UserRepository userRepository) {
         this.studentRepository = studentRepository;
@@ -69,6 +74,7 @@ public class StudentService {
      *                          implemented in the future.
      */
     public String insertNewStudent(StudentSignupRequest student) {
+        logger.info("Attempting to create new student with email: {}", student.getEmail());
         // Step 1: Hash the plain-text password before storing it in the app_user table
         String hashedPassword = hashPlainTextPassword(student.getPassword());
 
@@ -82,6 +88,7 @@ public class StudentService {
         // Step 4: Insert the student profile into the student table
         int studentInsertionResult = studentRepository.insertNewStudent(student);
 
+        logger.info("Successfully created new student with email: {}", student.getEmail());
         return "Student Signup Successful!";
     }
 
