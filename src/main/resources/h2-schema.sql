@@ -18,6 +18,8 @@ CREATE TABLE student (
     major varchar(255) NOT NULL,
     email varchar (255) NOT NULL,
     social_media_link varchar(255) NULL,
+    -- CHANGE NOTE (Rohit Vijai, 2026-03-15): Added UNIQUE constraint on student.email to enforce one student profile per email address at the DB level.
+    CONSTRAINT uq_student_email UNIQUE (email),
     FOREIGN KEY (university_id) REFERENCES university(id)
 );
 
@@ -26,4 +28,6 @@ CREATE TABLE app_user (
   role varchar(20) NOT NULL,
   email varchar(255) NOT NULL,
   password varchar(255) NOT NULL
+  -- CHANGE NOTE (Rohit Vijai, 2026-03-15): Added UNIQUE constraint on app_user.email to prevent duplicate accounts from being created for the same email address.
+  ,CONSTRAINT uq_app_user_email UNIQUE (email)
 );

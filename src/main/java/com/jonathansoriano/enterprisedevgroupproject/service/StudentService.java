@@ -8,12 +8,11 @@ import com.jonathansoriano.enterprisedevgroupproject.exception.SearchNotFoundExc
 import com.jonathansoriano.enterprisedevgroupproject.model.Student;
 import com.jonathansoriano.enterprisedevgroupproject.repository.StudentRepository;
 import com.jonathansoriano.enterprisedevgroupproject.repository.UserRepository;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 
-import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -22,10 +21,12 @@ public class StudentService {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
 
-    public StudentService(StudentRepository studentRepository, UserRepository userRepository) {
+    public StudentService(StudentRepository studentRepository, UserRepository userRepository,
+            PasswordEncoder passwordEncoder) {
         this.studentRepository = studentRepository;
         this.userRepository = userRepository;
-        this.passwordEncoder = new BCryptPasswordEncoder();
+        // CHANGE NOTE (Rohit Vijai, 2026-03-15): Replaced inline `new BCryptPasswordEncoder()` with the injected PasswordEncoder bean from SecurityConfig to avoid constructing a second encoder instance outside the IoC container.
+        this.passwordEncoder = passwordEncoder;
     }
 
     /**
@@ -68,6 +69,7 @@ public class StudentService {
      *                          Specific exceptions for these failures could be
      *                          implemented in the future.
      */
+    @Transactional
     public String insertNewStudent(StudentSignupRequest student) {
         // Step 1: Hash the plain-text password before storing it in the app_user table
         String hashedPassword = hashPlainTextPassword(student.getPassword());
@@ -78,9 +80,17 @@ public class StudentService {
 
         // Step 3: Insert the user credentials into the app_user table first
         int userInsertionResult = userRepository.insertNewUser(userRequest);
+        if (userInsertionResult != 1) {
+            // CHANGE NOTE (Rohit Vijai, 2026-03-15): Added row-count guard — throws IllegalStateException (rolled back by @Transactional) if the user insert does not affect exactly one row, preventing silent data inconsistency.
+            throw new IllegalStateException("User signup failed: expected one inserted user row");
+        }
 
         // Step 4: Insert the student profile into the student table
         int studentInsertionResult = studentRepository.insertNewStudent(student);
+        if (studentInsertionResult != 1) {
+            // CHANGE NOTE (Rohit Vijai, 2026-03-15): Added row-count guard — throws IllegalStateException (rolled back by @Transactional) if the student insert does not affect exactly one row, preventing silent data inconsistency.
+            throw new IllegalStateException("Student signup failed: expected one inserted student row");
+        }
 
         return "Student Signup Successful!";
     }
@@ -128,12 +138,8 @@ public class StudentService {
     // Streams provide a more concise, functional approach to collection
     // transformations.
     static List<Student> buildStudentListFromDtoList(List<StudentDto> dtoList) {
-        List<Student> studentList = new ArrayList<>();
-
-        for (StudentDto dto : dtoList) {
-            studentList.add(buildStudentFromDto(dto));
-        }
-        return studentList;
+        // CHANGE NOTE (Rohit Vijai, 2026-03-15): Replaced manual for-loop + ArrayList with stream().map().toList() for a concise, immutable list transformation.
+        return dtoList.stream().map(StudentService::buildStudentFromDto).toList();
     }
 
     /**

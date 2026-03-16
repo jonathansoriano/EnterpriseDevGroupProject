@@ -2,6 +2,7 @@ package com.jonathansoriano.enterprisedevgroupproject.controller;
 
 import com.jonathansoriano.enterprisedevgroupproject.domain.StudentRequest;
 import com.jonathansoriano.enterprisedevgroupproject.domain.StudentSignupRequest;
+import jakarta.validation.Valid;
 import com.jonathansoriano.enterprisedevgroupproject.model.Student;
 import com.jonathansoriano.enterprisedevgroupproject.service.StudentService;
 import org.springframework.http.HttpStatus;
@@ -81,7 +82,8 @@ public class StudentController {
     // Also consider adding @Slf4j (Lombok) and logging the signup attempt for
     // audit/monitoring purposes.
     @PostMapping("/studentSignUp")
-    public ResponseEntity<String> createNewStudent(@RequestBody StudentSignupRequest student) {
+    public ResponseEntity<String> createNewStudent(@Valid @RequestBody StudentSignupRequest student) {
+        // CHANGE NOTE (Rohit Vijai, 2026-03-15): Added @Valid — activates Jakarta Bean Validation on the request body and returns HTTP 400 with field-level errors instead of reaching the service with invalid data.
 
         String successfulInsertionMessage = service.insertNewStudent(student);
 

@@ -45,7 +45,7 @@ class UserRepositoryTest {
         //Arrange
         UserRequest userRequest = UserRequest.builder()
                 .role("USER")
-                .email("test@email.com")
+            .email("user-insert-success@email.com")
                 .password("$2a$10$N9qo8uLOickgx2ZMRZoMyeIjZAgcfl7p92ldGxad68LJZdL17lhWy")
                 .build();
         int expectRowsAffected = 1;

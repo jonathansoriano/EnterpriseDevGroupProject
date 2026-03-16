@@ -12,7 +12,6 @@ import org.springframework.http.MediaType;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.web.client.HttpServerErrorException;
 import tools.jackson.databind.ObjectMapper;
 
 import java.util.ArrayList;
@@ -97,20 +96,16 @@ class StudentControllerTest {
     }
 
     @Test
-    void createNewStudent_MissingBody_Http500_ServerError() throws Exception{
+    void createNewStudent_MissingBody_Http400_BadRequest() throws Exception{
         //Arrange
-        //Mimic not having a body in the request
-        //When we call the insertNewStudent() method, it should throw an 500 exception
-        when(service.insertNewStudent(any())).thenThrow(HttpServerErrorException.InternalServerError.class);
-
         //Act and Assert (using andExpect() method)
         mockMvc.perform(post("/studentSignUp")
                         .contentType(MediaType.APPLICATION_JSON))
-                        .andExpect(status().is5xxServerError());
+                        .andExpect(status().isBadRequest());
     }
 
     @Test
-    void createNewStudent_MissingRequiredField_Http500() throws Exception{
+    void createNewStudent_MissingRequiredField_Http400() throws Exception{
         //Arrange
         //Missing required field (password)
         String invalidRequestJson = """
@@ -126,13 +121,11 @@ class StudentControllerTest {
                                           "socialMediaLink": "Test"
                                         }
                                     """;
-        when(service.insertNewStudent(any())).thenThrow(HttpServerErrorException.InternalServerError.class);
-
         //Act and Assert (using andExpect() method)
         mockMvc.perform(post("/studentSignUp")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(invalidRequestJson))
-                        .andExpect(status().is5xxServerError());
+                                                .andExpect(status().isBadRequest());
     }
 
 
