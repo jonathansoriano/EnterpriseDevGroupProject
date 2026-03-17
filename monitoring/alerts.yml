@@ -1,0 +1,54 @@
+groups:
+  - name: application-alerts
+    rules:
+
+      # App instance is down for over 1 minute
+      - alert: AppDown
+        expr: up{job="spring-boot-app"} == 0
+        for: 1m
+        labels:
+          severity: critical
+        annotations:
+          summary: "Spring Boot app is down"
+          description: "{{ $labels.instance }} has been unreachable for more than 1 minute."
+
+      # High HTTP 5xx error rate (>5% of requests over 5 min)
+      - alert: HighErrorRate
+        expr: |
+          (
+            sum(rate(http_server_requests_seconds_count{status=~"5.."}[5m]))
+            /
+            sum(rate(http_server_requests_seconds_count[5m]))
+          ) > 0.05
+        for: 2m
+        labels:
+          severity: warning
+        annotations:
+          summary: "High HTTP 5xx error rate"
+          description: "More than 5% of requests are returning 5xx errors."
+
+      # High response latency (p95 > 2s over 5 min)
+      - alert: HighLatency
+        expr: |
+          histogram_quantile(0.95, sum(rate(http_server_requests_seconds_bucket[5m])) by (le))
+          > 2
+        for: 3m
+        labels:
+          severity: warning
+        annotations:
+          summary: "High p95 response latency"
+          description: "95th percentile response time exceeds 2 seconds."
+
+      # JVM heap usage above 85%
+      - alert: HighHeapUsage
+        expr: |
+          jvm_memory_used_bytes{area="heap"}
+          /
+          jvm_memory_max_bytes{area="heap"}
+          > 0.85
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "JVM heap usage is high"
+          description: "Heap usage on {{ $labels.instance }} exceeds 85%."
