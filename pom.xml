@@ -28,8 +28,6 @@
     </scm>
     <properties>
         <java.version>21</java.version>
-        <!-- Override Jackson BOM to fix CVE-2026-29062 & GHSA-72hv-8253-57qq -->
-        <jackson-bom.version>3.1.0</jackson-bom.version>
     </properties>
     <dependencies>
 
