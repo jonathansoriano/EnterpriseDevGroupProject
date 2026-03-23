@@ -24,7 +24,8 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v5
+      - name: Checkout source
+        uses: actions/checkout@v5
 
       - name: Set up JDK 21
         uses: actions/setup-java@v4
@@ -47,7 +48,7 @@ jobs:
           path: target/site/jacoco/
 
   # ────────────────────────────────────────────────
-  # Job 2: Build & Push Docker Image + Trivy Scan
+  # Job 2: Build, Push Docker Image & Scan with Trivy
   # ────────────────────────────────────────────────
   docker-build-scan-push:
     runs-on: ubuntu-latest
@@ -61,7 +62,8 @@ jobs:
       id-token: write
 
     steps:
-      - uses: actions/checkout@v5
+      - name: Checkout source
+        uses: actions/checkout@v5
 
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
@@ -101,10 +103,11 @@ jobs:
           push-to-registry: true
 
       - name: Trivy Vulnerability Scan
-        uses: aquasecurity/trivy-action@master
+        uses: aquasecurity/trivy-action@v0.20.0
         with:
-          image-ref: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest
+          image-ref: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}@${{ steps.push.outputs.digest }}
           format: table
-          exit-code: 0
+          exit-code: 1
           severity: CRITICAL,HIGH
           scan-type: image
+          scanners: vuln
