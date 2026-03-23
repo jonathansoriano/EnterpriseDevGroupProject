@@ -109,7 +109,7 @@ jobs:
         with:
           image-ref: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME_LOWER }}@${{ steps.push.outputs.digest }}
           format: table
-          exit-code: 0
+          exit-code: 1
           severity: CRITICAL,HIGH
           scan-type: image
           scanners: vuln
