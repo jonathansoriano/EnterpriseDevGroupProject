@@ -204,7 +204,7 @@ class StudentRepositoryTest {
                 .universityId(1)
                 .grade("Freshman")
                 .major("General Studies")
-                .email("student-insert-success@email.com")
+                .email("test@email.com")
                 .password("passw0rd!")
                 .socialMediaLink(null)
                 .build();

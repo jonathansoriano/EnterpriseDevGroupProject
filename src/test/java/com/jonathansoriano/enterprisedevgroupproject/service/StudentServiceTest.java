@@ -12,7 +12,6 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.security.crypto.password.PasswordEncoder;
 
 import java.util.Collections;
 import java.util.List;
@@ -29,8 +28,6 @@ class StudentServiceTest {
     StudentRepository studentRepository;
     @Mock
     UserRepository userRepository;
-    @Mock
-    PasswordEncoder passwordEncoder;
 
     @InjectMocks
     StudentService service;
@@ -130,7 +127,6 @@ class StudentServiceTest {
         // Mocking up the expected behavior for when the repository.insertNewStudent(...) gets called and when the repository.insertNewUser(...) gets called
         when(studentRepository.insertNewStudent(studentSignupRequest)).thenReturn(expectedResponseFromStudentRepository);
         when(userRepository.insertNewUser(any())).thenReturn(expectedResponseFromUserRepository);
-        when(passwordEncoder.encode(any())).thenReturn("hashed-password");
 
         //Act
         String actualReturnValueFromInsertNewStudent = service.insertNewStudent(studentSignupRequest);

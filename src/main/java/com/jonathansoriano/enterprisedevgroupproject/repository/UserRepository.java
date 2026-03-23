@@ -2,13 +2,12 @@ package com.jonathansoriano.enterprisedevgroupproject.repository;
 
 import com.jonathansoriano.enterprisedevgroupproject.domain.UserRequest;
 import com.jonathansoriano.enterprisedevgroupproject.dto.UserDto;
-import org.springframework.dao.DataAccessException;
-import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.BeanPropertyRowMapper;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
 import java.util.Optional;
 
 @Repository
@@ -42,8 +41,7 @@ public class UserRepository {
                     new BeanPropertyRowMapper<>(UserDto.class, true)
             );
             return Optional.ofNullable(user);
-        } catch (EmptyResultDataAccessException ex) {
-            // CHANGE NOTE (Rohit Vijai, 2026-03-15): Narrowed catch from Exception to EmptyResultDataAccessException so only a genuine "no row found" result returns Optional.empty(); other data access failures still propagate.
+        } catch (Exception ex) {
             return Optional.empty();
         }
     }
@@ -68,9 +66,8 @@ public class UserRepository {
                 .addValue("password", userRequest.getPassword());
         try {
             return jdbcTemplate.update(INSERT_NEW_APP_USER, params);
-        } catch (DataAccessException ex) {
-            // CHANGE NOTE (Rohit Vijai, 2026-03-15): Narrowed catch from Exception to DataAccessException and rethrown so constraint violation details (e.g., duplicate email) propagate to ExceptionTranslator for a 409 Conflict response.
-            throw ex;
+        } catch (Exception ex) {
+            throw new RuntimeException("User insertion failed due to a database error", ex);
         }
     }
 }

@@ -5,7 +5,6 @@ import com.jonathansoriano.enterprisedevgroupproject.domain.StudentSignupRequest
 import com.jonathansoriano.enterprisedevgroupproject.dto.StudentDto;
 import com.jonathansoriano.enterprisedevgroupproject.util.SqlUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.BeanPropertyRowMapper;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
@@ -123,9 +122,8 @@ public class StudentRepository {
                                                                    // Were affected by the SQL Operation. If int > 0,
                                                                    // Then operation was successful; else no rows were
                                                                    // inserted/updated...
-        } catch (DataAccessException ex) {
-            // CHANGE NOTE (Rohit Vijai, 2026-03-15): Narrowed catch from Exception to DataAccessException and rethrown so SQL-state / constraint details are preserved for upstream exception translation (e.g., 409 Conflict mapping in ExceptionTranslator).
-            throw ex;
+        } catch (Exception ex) {
+            throw new RuntimeException("Student insertion failed due to a database error", ex);
         }
     }
 
