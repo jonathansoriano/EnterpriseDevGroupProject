@@ -17,12 +17,14 @@ COPY .mvn/ .mvn
 COPY mvnw pom.xml ./
 RUN chmod +x mvnw
 
-# Download dependencies (cached if pom.xml doesn't change)
-RUN ./mvnw dependency:go-offline -q || true
+# Download dependencies (BuildKit cache mount for Maven repo)
+RUN --mount=type=cache,target=/root/.m2/repository \
+    ./mvnw dependency:go-offline -q
 
 # Copy source and build the application JAR
 COPY src ./src
-RUN ./mvnw clean package -DskipTests -q
+RUN --mount=type=cache,target=/root/.m2/repository \
+    ./mvnw clean package -DskipTests -q
 
 # ============================================================
 # Stage 2: Runtime
