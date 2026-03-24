@@ -130,7 +130,7 @@ jobs:
           push-to-registry: true
 
       - name: Trivy Vulnerability Scan
-        uses: aquasecurity/trivy-action@v0.20.0
+        uses: aquasecurity/trivy-action@0.35.0
         with:
           image-ref: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME_LOWER }}@${{ steps.push.outputs.digest }}
           format: table
