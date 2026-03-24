@@ -208,6 +208,7 @@ To run the project from the terminal, use the following command:
 #### Option 1: Local Development with Docker Compose (Builds from source)
 # Clone the repo
 ```bash
+# Clone the repo
 git clone https://github.com/jonathansoriano/EnterpriseDevGroupProject.git
 cd EnterpriseDevGroupProject
 
@@ -228,6 +229,7 @@ docker-compose up -d
 # Run just the app from GHCR
 docker run --platform linux/amd64 -p 8080:8080 ghcr.io/jonathansoriano/enterprisedevgroupproject:latest
 ```
+---
 
 ## Technology Stack
 
