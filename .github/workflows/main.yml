@@ -45,7 +45,7 @@ jobs:
 
       - name: Upload JaCoCo Coverage Report
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: jacoco-report
           path: target/site/jacoco/
@@ -167,7 +167,7 @@ jobs:
           EOF
 
       - name: Upload docker-compose file as artifact
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: docker-compose-prod
           path: docker-compose.prod.yml
