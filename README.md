@@ -204,6 +204,30 @@ To run the project from the terminal, use the following command:
 - Are there any blockers or issues?
 
 ---
+## 10. Deployment option
+#### Option 1: Local Development with Docker Compose (Builds from source)
+# Clone the repo
+```bash
+git clone https://github.com/jonathansoriano/EnterpriseDevGroupProject.git
+cd EnterpriseDevGroupProject
+
+# Create .env file with required variables
+cp .env.example .env
+# Edit .env with your database credentials
+
+# Start all services (builds the app image locally)
+docker-compose up -d
+
+# Access services:
+# App: http://localhost:8080
+# Prometheus: http://localhost:9090
+# Grafana: http://localhost:3000
+```
+#### Option 2: Production with Pre-built Registry Image
+```bash
+# Run just the app from GHCR
+docker run --platform linux/amd64 -p 8080:8080 ghcr.io/jonathansoriano/enterprisedevgroupproject:latest
+```
 
 ## Technology Stack
 
