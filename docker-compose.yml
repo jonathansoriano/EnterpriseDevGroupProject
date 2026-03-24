@@ -1,8 +1,7 @@
+ url=https://github.com/jonathansoriano/EnterpriseDevGroupProject
 services:
 
-  # ────────────────────────────────────────────────
   # PostgreSQL Database
-  # ────────────────────────────────────────────────
   db:
     image: postgres:16-alpine
     container_name: enterprise-db
@@ -20,23 +19,14 @@ services:
       timeout: 5s
       retries: 5
     restart: unless-stopped
-    deploy:
-      resources:
-        limits:
-          cpus: "1.0"
-          memory: 512M
     networks:
       - backend
 
-  # ────────────────────────────────────────────────
-  # Spring Boot Application
-  # ────────────────────────────────────────────────
+  # Spring Boot Application (from GHCR Registry)
   app:
-    build:
-      context: .
-      dockerfile: Dockerfile
+    image: ghcr.io/jonathansoriano/enterprisedevgroupproject:latest
     container_name: enterprisedevgroupproject
-    image: enterprisedevgroupproject:latest
+    pull_policy: always  # Always pull latest image
     ports:
       - "8080:8080"
     environment:
@@ -57,18 +47,11 @@ services:
       timeout: 5s
       retries: 3
       start_period: 30s
-    deploy:
-      resources:
-        limits:
-          cpus: "2.0"
-          memory: 1G
     networks:
       - backend
       - monitoring
 
-  # ────────────────────────────────────────────────
-  # Prometheus  —  metrics collection
-  # ────────────────────────────────────────────────
+  # Prometheus
   prometheus:
     image: prom/prometheus:v3.2.1
     container_name: enterprise-prometheus
@@ -82,17 +65,10 @@ services:
       app:
         condition: service_healthy
     restart: unless-stopped
-    deploy:
-      resources:
-        limits:
-          cpus: "0.5"
-          memory: 512M
     networks:
       - monitoring
 
-  # ────────────────────────────────────────────────
-  # Grafana  —  metrics visualization
-  # ────────────────────────────────────────────────
+  # Grafana
   grafana:
     image: grafana/grafana:11.5.2
     container_name: enterprise-grafana
@@ -107,11 +83,6 @@ services:
     depends_on:
       - prometheus
     restart: unless-stopped
-    deploy:
-      resources:
-        limits:
-          cpus: "0.5"
-          memory: 256M
     networks:
       - monitoring
 
