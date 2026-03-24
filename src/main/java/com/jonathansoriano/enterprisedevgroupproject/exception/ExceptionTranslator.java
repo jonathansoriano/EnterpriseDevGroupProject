@@ -1,6 +1,7 @@
 package com.jonathansoriano.enterprisedevgroupproject.exception;
 
 import jakarta.servlet.http.HttpServletRequest;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.Ordered;
 import org.springframework.core.annotation.Order;
 import org.springframework.http.HttpStatus;
@@ -10,9 +11,8 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 
 // This class acts as a global exception handler for the entire application.
 // It intercepts exceptions thrown from controllers/services and maps them to structured HTTP responses.
-// IMPROVEMENT: Add a Logger (e.g., @Slf4j from Lombok) and log each caught exception.
-// Without logging, exceptions are silently converted to HTTP responses and the root cause
-// is never recorded in application logs, making debugging very difficult.
+
+@Slf4j
 @ControllerAdvice()
 @Order(Ordered.HIGHEST_PRECEDENCE)
 public class ExceptionTranslator {
@@ -24,6 +24,8 @@ public class ExceptionTranslator {
     @ExceptionHandler(SearchNotFoundException.class)
     public ResponseEntity<ExceptionWrapper> handleSearchNotFoundException(SearchNotFoundException ex,
             HttpServletRequest request) {
+        //Logging Exceptions
+        log.warn("Search not found at {}: {}", request.getRequestURI(), ex.getMessage());
         // We retrieve said exception's message and return it in the ResponseEntity
         // along with HTTP status (404).
 
@@ -37,19 +39,11 @@ public class ExceptionTranslator {
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ExceptionWrapper> handleException(Exception ex, HttpServletRequest request) {
         String message = ex.getMessage();
+        //Logging Exceptions
+        log.error("Unhandled exception occurred at {}: ", request.getRequestURI(), ex);
+
         ExceptionWrapper wrapper = new ExceptionWrapper(HttpStatus.INTERNAL_SERVER_ERROR.value(),
                 "Something went wrong..." + message, request.getRequestURI());
         return new ResponseEntity<>(wrapper, HttpStatus.INTERNAL_SERVER_ERROR);
     }
-    // IMPROVEMENT: Add a dedicated handler for DataIntegrityViolationException to
-    // return
-    // 409 Conflict with a user-friendly message like "A student with this email
-    // already exists."
-    // Currently, duplicate-email inserts fall through to the generic Exception
-    // handler above
-    // and return a vague 500 Internal Server Error.
-
-    // IMPROVEMENT: Add a handler for MethodArgumentNotValidException (triggered by
-    // @Valid)
-    // to return 400 Bad Request with field-level validation error details.
 }

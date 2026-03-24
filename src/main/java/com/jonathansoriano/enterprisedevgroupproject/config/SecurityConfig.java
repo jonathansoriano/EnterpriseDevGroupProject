@@ -3,6 +3,7 @@ package com.jonathansoriano.enterprisedevgroupproject.config;
 import com.jonathansoriano.enterprisedevgroupproject.service.CustomUserDetailsService;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
@@ -43,8 +44,10 @@ public class SecurityConfig {
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
             .authorizeHttpRequests(auth -> auth
-                .requestMatchers("/", "/index.html", "/about.html", "/login.html", "/css/**", "/studentSignUp").permitAll() // Pages that dont require authentication
-                .requestMatchers("/findStudent", "/search.html").authenticated() // Pages that require authentication
+                .requestMatchers("/", "/index.html", "/about.html", "/login.html", "/css/**").permitAll() // Pages that dont require authentication
+                .requestMatchers(HttpMethod.POST, "/student").permitAll() // Endpoint that doesn't require authentication
+                .requestMatchers(HttpMethod.GET, "/student").authenticated() // Endpoint that requires authentication
+                .requestMatchers("/search.html").authenticated() // Page that requires authentication
                 .anyRequest().authenticated()
             )
             .formLogin(form -> form
@@ -60,7 +63,7 @@ public class SecurityConfig {
                 .permitAll()
             )
             .csrf(csrf -> csrf
-                .ignoringRequestMatchers("/studentSignUp", "/login")
+                .ignoringRequestMatchers("/student", "/login")
             );
         
         return http.build();

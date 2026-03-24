@@ -15,7 +15,7 @@ import java.util.List;
 // IMPROVEMENT: Consider grouping endpoints under a versioned base path (e.g., @RequestMapping("/api/v1"))
 // for cleaner API versioning and to separate API routes from static resource paths.
 @RestController
-@RequestMapping("/")
+@RequestMapping("/student")
 public class StudentController {
     private final StudentService service;
 
@@ -36,7 +36,7 @@ public class StudentController {
      * @return a {@code ResponseEntity} containing a list of students matching the
      *         search criteria
      */
-    @GetMapping("findStudent")
+    @GetMapping
     public ResponseEntity<List<Student>> find(
             @RequestParam(required = false) String firstName,
             @RequestParam(required = false) String lastName,
@@ -57,10 +57,6 @@ public class StudentController {
                 .major(major)
                 .build();
 
-        // IMPROVEMENT: Add a @Valid annotation to the StudentRequest parameter (once
-        // Bean Validation
-        // annotations are added to the DTO) to automatically return 400 Bad Request for
-        // invalid input.
         return ResponseEntity.ok(service.find(request));
 
     }
@@ -76,11 +72,8 @@ public class StudentController {
      * @return a {@code ResponseEntity} containing a success message upon successful
      *         student creation
      */
-    // IMPROVEMENT: Add @Valid before @RequestBody to activate Jakarta Bean
-    // Validation on the DTO.
-    // Also consider adding @Slf4j (Lombok) and logging the signup attempt for
-    // audit/monitoring purposes.
-    @PostMapping("/studentSignUp")
+
+    @PostMapping
     public ResponseEntity<String> createNewStudent(@RequestBody StudentSignupRequest student) {
 
         String successfulInsertionMessage = service.insertNewStudent(student);

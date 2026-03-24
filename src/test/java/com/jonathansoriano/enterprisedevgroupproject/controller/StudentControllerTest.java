@@ -47,7 +47,7 @@ class StudentControllerTest {
         when(service.find(any())).thenReturn(expectedList);
 
         //Act and Assert (andExpect() is our assertions)
-        mockMvc.perform(get("/findStudent")
+        mockMvc.perform(get("/student")
                 .param("firstName", "Jo")
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
@@ -62,7 +62,7 @@ class StudentControllerTest {
         //when(service.find(any())).thenReturn(Collections.emptyList());
         when(service.find(any())).thenThrow(SearchNotFoundException.class);
         //Act and Assert (using andExpect() method)
-        mockMvc.perform(get("/findStudent")
+        mockMvc.perform(get("/student")
                 .param("firstName", "Grady")
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isNotFound());
@@ -89,7 +89,7 @@ class StudentControllerTest {
         String expectedMessage = "Student Signup Successful!";
         when(service.insertNewStudent(any())).thenReturn(expectedMessage);
         //Act and Assert (using andExpect() method)
-        mockMvc.perform(post("/studentSignUp")
+        mockMvc.perform(post("/student")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(requestJson))
                         .andExpect(status().isCreated())
@@ -104,7 +104,7 @@ class StudentControllerTest {
         when(service.insertNewStudent(any())).thenThrow(HttpServerErrorException.InternalServerError.class);
 
         //Act and Assert (using andExpect() method)
-        mockMvc.perform(post("/studentSignUp")
+        mockMvc.perform(post("/student")
                         .contentType(MediaType.APPLICATION_JSON))
                         .andExpect(status().is5xxServerError());
     }
@@ -129,7 +129,7 @@ class StudentControllerTest {
         when(service.insertNewStudent(any())).thenThrow(HttpServerErrorException.InternalServerError.class);
 
         //Act and Assert (using andExpect() method)
-        mockMvc.perform(post("/studentSignUp")
+        mockMvc.perform(post("/student")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(invalidRequestJson))
                         .andExpect(status().is5xxServerError());
