@@ -12,7 +12,6 @@ import org.springframework.http.MediaType;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.web.client.HttpServerErrorException;
 import tools.jackson.databind.ObjectMapper;
 
 import java.util.ArrayList;
@@ -35,8 +34,9 @@ class StudentControllerTest {
     @Autowired
     private MockMvc mockMvc;
 
-    private ObjectMapper objectMapper; // Can be used to serialize/deserialize JSON
-                                        // Can also be used to convert Request(StudentSignupRequest,etc) Objects to JSON (POST request body)
+    // Can be used to serialize/deserialize JSON
+    // Can also be used to convert Request(StudentSignupRequest,etc) Objects to JSON (POST request body)
+    private ObjectMapper objectMapper;
 
     //We test for exceptions in the controller layer to verify the exception is translated to the
     //correct HTTP response (Status code, body, headers)
@@ -59,7 +59,6 @@ class StudentControllerTest {
     @Test
     void find_Http404_NotFound() throws Exception{
         //Arrange
-        //when(service.find(any())).thenReturn(Collections.emptyList());
         when(service.find(any())).thenThrow(SearchNotFoundException.class);
         //Act and Assert (using andExpect() method)
         mockMvc.perform(get("/student")
@@ -78,7 +77,7 @@ class StudentControllerTest {
                               "lastName": "Sanjuan",
                               "residentCity": "Cincinnati",
                               "residentState": "OH",
-                              "universityName": "University of Cincinnati",
+                              "universityId": 1,
                               "grade": "Senior",
                               "major": "Computer Science",
                               "email": "jon@example.com",
@@ -100,8 +99,8 @@ class StudentControllerTest {
     void createNewStudent_MissingBody_Http500_ServerError() throws Exception{
         //Arrange
         //Mimic not having a body in the request
-        //When we call the insertNewStudent() method, it should throw an 500 exception
-        when(service.insertNewStudent(any())).thenThrow(HttpServerErrorException.InternalServerError.class);
+        //No need to mock up the service and exception thrown (Mockito.when... then) since the ServerError exception is thrown before we hit the service call
+
 
         //Act and Assert (using andExpect() method)
         mockMvc.perform(post("/student")
@@ -110,7 +109,7 @@ class StudentControllerTest {
     }
 
     @Test
-    void createNewStudent_MissingRequiredField_Http500() throws Exception{
+    void createNewStudent_MissingRequiredField_Http400() throws Exception{
         //Arrange
         //Missing required field (password)
         String invalidRequestJson = """
@@ -126,13 +125,13 @@ class StudentControllerTest {
                                           "socialMediaLink": "Test"
                                         }
                                     """;
-        when(service.insertNewStudent(any())).thenThrow(HttpServerErrorException.InternalServerError.class);
+        // No need to mock up the service and exception thrown (Mockito.when... then) since validation exception is thrown before we hit the service call
 
         //Act and Assert (using andExpect() method)
         mockMvc.perform(post("/student")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(invalidRequestJson))
-                        .andExpect(status().is5xxServerError());
+                        .andExpect(status().isBadRequest());
     }
 
 

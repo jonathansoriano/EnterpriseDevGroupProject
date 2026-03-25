@@ -6,8 +6,13 @@ import org.springframework.core.Ordered;
 import org.springframework.core.annotation.Order;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.FieldError;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
+
+import java.util.HashMap;
+import java.util.Map;
 
 // This class acts as a global exception handler for the entire application.
 // It intercepts exceptions thrown from controllers/services and maps them to structured HTTP responses.
@@ -33,6 +38,26 @@ public class ExceptionTranslator {
                 request.getRequestURI());
 
         return new ResponseEntity<>(wrapper, HttpStatus.NOT_FOUND);
+    }
+
+    @ExceptionHandler(MethodArgumentNotValidException.class)
+    public ResponseEntity<ExceptionWrapper> handleMethodArgumentNotValidException(MethodArgumentNotValidException ex, HttpServletRequest request) {
+
+        Map<String, String> errors = new HashMap<>();
+
+        ex.getBindingResult().getAllErrors().forEach((error) -> {
+            String fieldName = ((FieldError)error).getField();
+            String errorMessage = error.getDefaultMessage();
+
+            errors.put(fieldName, errorMessage);
+        });
+        String errorMessage = errors.toString();
+
+        log.warn("Property validation error(s) at {}: {}", request.getRequestURI(), errorMessage);
+
+        ExceptionWrapper wrapper = new ExceptionWrapper(HttpStatus.BAD_REQUEST.value(), "Property validation error(s)!\n" + errorMessage, request.getRequestURI());
+
+        return new ResponseEntity<>(wrapper, HttpStatus.BAD_REQUEST);
     }
 
     // Any other exception thrown will be caught here
