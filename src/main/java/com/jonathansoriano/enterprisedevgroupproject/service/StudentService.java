@@ -11,6 +11,7 @@ import com.jonathansoriano.enterprisedevgroupproject.repository.UserRepository;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 
 import java.util.ArrayList;
@@ -53,7 +54,10 @@ public class StudentService {
      * Inserts a new student into the system by creating corresponding entries in
      * the user table
      * and the student table. The student's password is hashed before insertion for
-     * security purposes.
+     * security purposes. Transactional annotation is used to ensure both writes
+     * either succeed together or both roll back together. Without it, a failure on
+     * the second insert (student) after the first insert (user) succeeded would leave
+     * the database in an inconsistent state a user account with no matching student profile.
      *
      * @param student The {@link StudentSignupRequest} object containing the new
      *                student's details
@@ -68,6 +72,7 @@ public class StudentService {
      *                          Specific exceptions for these failures could be
      *                          implemented in the future.
      */
+    @Transactional
     public String insertNewStudent(StudentSignupRequest student) {
         // Step 1: Hash the plain-text password before storing it in the app_user table
         String hashedPassword = hashPlainTextPassword(student.getPassword());
