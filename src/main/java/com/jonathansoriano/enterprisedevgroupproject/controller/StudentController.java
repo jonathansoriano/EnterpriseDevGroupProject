@@ -4,6 +4,7 @@ import com.jonathansoriano.enterprisedevgroupproject.domain.StudentRequest;
 import com.jonathansoriano.enterprisedevgroupproject.domain.StudentSignupRequest;
 import com.jonathansoriano.enterprisedevgroupproject.model.Student;
 import com.jonathansoriano.enterprisedevgroupproject.service.StudentService;
+import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -81,7 +82,7 @@ public class StudentController {
     // Also consider adding @Slf4j (Lombok) and logging the signup attempt for
     // audit/monitoring purposes.
     @PostMapping("/studentSignUp")
-    public ResponseEntity<String> createNewStudent(@RequestBody StudentSignupRequest student) {
+    public ResponseEntity<String> createNewStudent(@Valid @RequestBody StudentSignupRequest student) {
 
         String successfulInsertionMessage = service.insertNewStudent(student);
 

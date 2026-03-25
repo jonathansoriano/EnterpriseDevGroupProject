@@ -5,14 +5,16 @@ import org.springframework.core.Ordered;
 import org.springframework.core.annotation.Order;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.FieldError;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 
+import java.util.HashMap;
+import java.util.Map;
+
 // This class acts as a global exception handler for the entire application.
 // It intercepts exceptions thrown from controllers/services and maps them to structured HTTP responses.
-// IMPROVEMENT: Add a Logger (e.g., @Slf4j from Lombok) and log each caught exception.
-// Without logging, exceptions are silently converted to HTTP responses and the root cause
-// is never recorded in application logs, making debugging very difficult.
 @ControllerAdvice()
 @Order(Ordered.HIGHEST_PRECEDENCE)
 public class ExceptionTranslator {
@@ -33,6 +35,23 @@ public class ExceptionTranslator {
         return new ResponseEntity<>(wrapper, HttpStatus.NOT_FOUND);
     }
 
+    @ExceptionHandler(MethodArgumentNotValidException.class)
+    public ResponseEntity<ExceptionWrapper> handleMethodArgumentNotValidException(MethodArgumentNotValidException ex, HttpServletRequest request) {
+
+        Map<String, String> errors = new HashMap<>();
+
+        ex.getBindingResult().getAllErrors().forEach((error) -> {
+           String fieldName = ((FieldError)error).getField();
+           String errorMessage = error.getDefaultMessage();
+
+           errors.put(fieldName, errorMessage);
+        });
+        String errorMessage = errors.toString();
+        ExceptionWrapper wrapper = new ExceptionWrapper(HttpStatus.BAD_REQUEST.value(), "Property validation error(s)!\n" + errorMessage, request.getRequestURI());
+
+        return new ResponseEntity<>(wrapper, HttpStatus.BAD_REQUEST);
+    }
+
     // Any other exception thrown will be caught here
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ExceptionWrapper> handleException(Exception ex, HttpServletRequest request) {
@@ -41,15 +60,4 @@ public class ExceptionTranslator {
                 "Something went wrong..." + message, request.getRequestURI());
         return new ResponseEntity<>(wrapper, HttpStatus.INTERNAL_SERVER_ERROR);
     }
-    // IMPROVEMENT: Add a dedicated handler for DataIntegrityViolationException to
-    // return
-    // 409 Conflict with a user-friendly message like "A student with this email
-    // already exists."
-    // Currently, duplicate-email inserts fall through to the generic Exception
-    // handler above
-    // and return a vague 500 Internal Server Error.
-
-    // IMPROVEMENT: Add a handler for MethodArgumentNotValidException (triggered by
-    // @Valid)
-    // to return 400 Bad Request with field-level validation error details.
 }
