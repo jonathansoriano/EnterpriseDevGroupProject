@@ -55,7 +55,7 @@ public class ExceptionTranslator {
 
         log.warn("Property validation error(s) at {}: {}", request.getRequestURI(), errorMessage);
 
-        ExceptionWrapper wrapper = new ExceptionWrapper(HttpStatus.BAD_REQUEST.value(), "Property validation error(s)!\n" + errorMessage, request.getRequestURI());
+        ExceptionWrapper wrapper = new ExceptionWrapper(HttpStatus.BAD_REQUEST.value(), "Property validation error(s):" + errorMessage, request.getRequestURI());
 
         return new ResponseEntity<>(wrapper, HttpStatus.BAD_REQUEST);
     }

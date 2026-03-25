@@ -22,7 +22,7 @@ public class StudentSignupRequest {
 
     @NotBlank(message = "Resident State field is required")
     @Size(min = 2, max = 2, message = "Resident state must be a Capitalized 2-letter code")
-    @Pattern(regexp = "^[A-Z]{2}$", message = "Resident state field must contain only letters")
+    @Pattern(regexp = "^[A-Z]{2}$", message = "Resident state field must contain 2 capitalized letters")
     private String residentState;
 
     @NotNull(message = "University ID is required")
@@ -35,7 +35,11 @@ public class StudentSignupRequest {
     private String major;
 
     @NotBlank(message = "Email field is required")
-    @Email(message = "Email must be a valid format")
+    @Email(message = "Please provide a valid email address")
+    @Pattern(
+            regexp = "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$",
+            message = "Email format is invalid"
+    )
     private String email;
 
     @NotBlank(message = "Password is required")
