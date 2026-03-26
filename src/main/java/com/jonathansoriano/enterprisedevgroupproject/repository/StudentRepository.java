@@ -2,7 +2,9 @@ package com.jonathansoriano.enterprisedevgroupproject.repository;
 
 import com.jonathansoriano.enterprisedevgroupproject.domain.StudentRequest;
 import com.jonathansoriano.enterprisedevgroupproject.domain.StudentSignupRequest;
+import com.jonathansoriano.enterprisedevgroupproject.dto.StudentAccountDetailsDto;
 import com.jonathansoriano.enterprisedevgroupproject.dto.StudentDto;
+import com.jonathansoriano.enterprisedevgroupproject.dto.UserDto;
 import com.jonathansoriano.enterprisedevgroupproject.util.SqlUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.jdbc.core.BeanPropertyRowMapper;
@@ -11,6 +13,7 @@ import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 public class StudentRepository {
@@ -39,6 +42,11 @@ public class StudentRepository {
     public static final String AND_UNIVERSITY_NAME = "AND LOWER(u.name) LIKE :universityName";
     public static final String AND_GRADE = "AND s.grade = :grade";
     public static final String AND_MAJOR = "AND LOWER(s.major) LIKE :major";
+
+    public static final String AND_EMAIL = "AND s.email = :email";
+
+
+
 
     public static final String INSERT_NEW_STUDENT = """
             INSERT INTO student (first_name, last_name, resident_city, resident_state, university_id, grade, major,email, social_media_link)
@@ -88,6 +96,25 @@ public class StudentRepository {
         // jdbctemplate talks to the database with your query and returns a List that
         // you specify (e.g. StudentDto).
         return jdbcTemplate.query(sql.toString(), params, new BeanPropertyRowMapper<>(StudentDto.class, true));
+    }
+
+    public Optional<StudentAccountDetailsDto> findByEmail(String email) {
+        MapSqlParameterSource params = new MapSqlParameterSource()
+                .addValue("email", email);
+
+        StringBuilder sql = new StringBuilder(SELECT)
+                .append(SqlUtils.andAddCondition(AND_EMAIL, email));
+
+        try {
+            StudentAccountDetailsDto student = jdbcTemplate.queryForObject(
+                    sql.toString(),
+                    params,
+                    new BeanPropertyRowMapper<>(StudentAccountDetailsDto.class, true)
+            );
+            return Optional.ofNullable(student);
+        } catch (Exception ex) {
+            return Optional.empty();
+        }
     }
 
     /**

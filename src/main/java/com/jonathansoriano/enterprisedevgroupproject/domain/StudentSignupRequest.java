@@ -10,6 +10,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
+//This is the class that will be used to create a new Student in the student table.
 public class StudentSignupRequest {
     @NotBlank(message = "First name field is required")
     private String firstName;

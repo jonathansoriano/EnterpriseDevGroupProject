@@ -2,11 +2,14 @@ package com.jonathansoriano.enterprisedevgroupproject.controller;
 
 import com.jonathansoriano.enterprisedevgroupproject.domain.StudentRequest;
 import com.jonathansoriano.enterprisedevgroupproject.domain.StudentSignupRequest;
+import com.jonathansoriano.enterprisedevgroupproject.model.CustomerUserDetails;
 import com.jonathansoriano.enterprisedevgroupproject.model.Student;
+import com.jonathansoriano.enterprisedevgroupproject.model.StudentAccountDetails;
 import com.jonathansoriano.enterprisedevgroupproject.service.StudentService;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -61,6 +64,21 @@ public class StudentController {
     }
 
     /**
+     * Retrieves the profile information of the currently authenticated student.
+     *
+     * @param userDetails the authenticated user's details, containing information about the current user
+     * @return a {@code ResponseEntity} containing the student's account details
+     */
+    @GetMapping("/profile")
+    public ResponseEntity<StudentAccountDetails> getProfile(@AuthenticationPrincipal CustomerUserDetails userDetails) {
+        // 'userDetails' IS the Principal.
+        String currentUserName = userDetails.getUsername();
+
+        StudentAccountDetails studentAccountDetails = service.findByEmail(currentUserName);
+        return ResponseEntity.ok(studentAccountDetails);
+    }
+
+    /**
      * Creates a new student in the system based on the provided signup request.
      *
      * @param student the {@code StudentSignupRequest} object containing the
@@ -79,5 +97,12 @@ public class StudentController {
 
         return new ResponseEntity<>(successfulInsertionMessage, HttpStatus.CREATED);
 
+    }
+
+    @PutMapping("/account")
+    public ResponseEntity<String> updateStudent(@Valid @RequestBody StudentSignupRequest student) {
+        //String successfulAccountUpdate = service.updateStudent(student);
+
+        return new ResponseEntity<>("", HttpStatus.OK);
     }
 }

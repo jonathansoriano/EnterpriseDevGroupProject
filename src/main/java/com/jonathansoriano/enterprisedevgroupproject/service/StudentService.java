@@ -3,11 +3,15 @@ package com.jonathansoriano.enterprisedevgroupproject.service;
 import com.jonathansoriano.enterprisedevgroupproject.domain.StudentRequest;
 import com.jonathansoriano.enterprisedevgroupproject.domain.StudentSignupRequest;
 import com.jonathansoriano.enterprisedevgroupproject.domain.UserRequest;
+import com.jonathansoriano.enterprisedevgroupproject.dto.StudentAccountDetailsDto;
 import com.jonathansoriano.enterprisedevgroupproject.dto.StudentDto;
+import com.jonathansoriano.enterprisedevgroupproject.dto.UserDto;
 import com.jonathansoriano.enterprisedevgroupproject.exception.SearchNotFoundException;
 import com.jonathansoriano.enterprisedevgroupproject.model.Student;
+import com.jonathansoriano.enterprisedevgroupproject.model.StudentAccountDetails;
 import com.jonathansoriano.enterprisedevgroupproject.repository.StudentRepository;
 import com.jonathansoriano.enterprisedevgroupproject.repository.UserRepository;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -48,6 +52,20 @@ public class StudentService {
         }
         return students;
 
+    }
+
+    /**
+     * Finds the student account details by the provided email.
+     *
+     * @param usersUsername the email of the user to search for
+     * @return the student account details associated with the given email
+     * @throws SearchNotFoundException if no student is found with the given email
+     */
+    public StudentAccountDetails findByEmail(String usersUsername) {
+        StudentAccountDetailsDto studentDto = studentRepository.findByEmail(usersUsername)
+                .orElseThrow(()-> new SearchNotFoundException("Student account not found with email: " +  usersUsername));
+
+        return buildStudentAccountDetailFromDto(studentDto, usersUsername);
     }
 
     /**
@@ -158,6 +176,21 @@ public class StudentService {
                 .major(dto.getMajor())
                 .email(dto.getEmail())
                 .socialMediaLink(dto.getSocialMediaLink())
+                .build();
+    }
+
+    static StudentAccountDetails buildStudentAccountDetailFromDto(StudentAccountDetailsDto studentDto, String email) {
+
+        return StudentAccountDetails.builder()
+                .firstName(studentDto.getFirstName())
+                .lastName(studentDto.getLastName())
+                .residentCity(studentDto.getResidentCity())
+                .residentState(studentDto.getResidentState())
+                .universityName(studentDto.getUniversityName())// should we return the ID or name of university? how will it handled in front end?
+                .grade(studentDto.getGrade())
+                .major(studentDto.getMajor())
+                .email(email)
+                .socialMediaLink(studentDto.getSocialMediaLink())
                 .build();
     }
 }
