@@ -4,6 +4,7 @@ import com.jonathansoriano.enterprisedevgroupproject.domain.StudentRequest;
 import com.jonathansoriano.enterprisedevgroupproject.domain.StudentSignupRequest;
 import com.jonathansoriano.enterprisedevgroupproject.model.Student;
 import com.jonathansoriano.enterprisedevgroupproject.service.StudentService;
+import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -12,10 +13,8 @@ import java.util.List;
 
 // The @RestController annotation combines @Controller and @ResponseBody, meaning every
 // method return value is automatically serialized as JSON in the HTTP response body.
-// IMPROVEMENT: Consider grouping endpoints under a versioned base path (e.g., @RequestMapping("/api/v1"))
-// for cleaner API versioning and to separate API routes from static resource paths.
 @RestController
-@RequestMapping("/")
+@RequestMapping("/student")
 public class StudentController {
     private final StudentService service;
 
@@ -36,7 +35,7 @@ public class StudentController {
      * @return a {@code ResponseEntity} containing a list of students matching the
      *         search criteria
      */
-    @GetMapping("findStudent")
+    @GetMapping
     public ResponseEntity<List<Student>> find(
             @RequestParam(required = false) String firstName,
             @RequestParam(required = false) String lastName,
@@ -57,10 +56,6 @@ public class StudentController {
                 .major(major)
                 .build();
 
-        // IMPROVEMENT: Add a @Valid annotation to the StudentRequest parameter (once
-        // Bean Validation
-        // annotations are added to the DTO) to automatically return 400 Bad Request for
-        // invalid input.
         return ResponseEntity.ok(service.find(request));
 
     }
@@ -76,12 +71,9 @@ public class StudentController {
      * @return a {@code ResponseEntity} containing a success message upon successful
      *         student creation
      */
-    // IMPROVEMENT: Add @Valid before @RequestBody to activate Jakarta Bean
-    // Validation on the DTO.
-    // Also consider adding @Slf4j (Lombok) and logging the signup attempt for
-    // audit/monitoring purposes.
-    @PostMapping("/studentSignUp")
-    public ResponseEntity<String> createNewStudent(@RequestBody StudentSignupRequest student) {
+
+    @PostMapping
+    public ResponseEntity<String> createNewStudent(@Valid @RequestBody StudentSignupRequest student) {
 
         String successfulInsertionMessage = service.insertNewStudent(student);
 
