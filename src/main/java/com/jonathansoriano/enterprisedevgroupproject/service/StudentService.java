@@ -128,10 +128,6 @@ public class StudentService {
      * @return a list of Student objects created from the given list of StudentDto
      *         objects.
      */
-    // IMPROVEMENT: This can be simplified using Java Streams:
-    // return dtoList.stream().map(StudentService::buildStudentFromDto).toList();
-    // Streams provide a more concise, functional approach to collection
-    // transformations.
     static List<Student> buildStudentListFromDtoList(List<StudentDto> dtoList) {
         List<Student> studentList = new ArrayList<>();
 

@@ -13,8 +13,6 @@ import java.util.List;
 
 // The @RestController annotation combines @Controller and @ResponseBody, meaning every
 // method return value is automatically serialized as JSON in the HTTP response body.
-// IMPROVEMENT: Consider grouping endpoints under a versioned base path (e.g., @RequestMapping("/api/v1"))
-// for cleaner API versioning and to separate API routes from static resource paths.
 @RestController
 @RequestMapping("/student")
 public class StudentController {
