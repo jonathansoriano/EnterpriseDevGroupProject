@@ -1,5 +1,6 @@
 package com.jonathansoriano.enterprisedevgroupproject.controller;
 
+import com.jonathansoriano.enterprisedevgroupproject.domain.EditStudentDetailsRequest;
 import com.jonathansoriano.enterprisedevgroupproject.domain.StudentRequest;
 import com.jonathansoriano.enterprisedevgroupproject.domain.StudentSignupRequest;
 import com.jonathansoriano.enterprisedevgroupproject.model.CustomerUserDetails;
@@ -78,6 +79,13 @@ public class StudentController {
         return ResponseEntity.ok(studentAccountDetails);
     }
 
+    @PutMapping("/profile")
+    public ResponseEntity<String> updateStudent(@AuthenticationPrincipal CustomerUserDetails userDetails, @Valid @RequestBody EditStudentDetailsRequest studentDetails) {
+        String successfulAccountUpdate = service.updateStudent(userDetails.getUsername(), studentDetails);
+
+        return new ResponseEntity<>(successfulAccountUpdate, HttpStatus.OK);
+    }
+
     /**
      * Creates a new student in the system based on the provided signup request.
      *
@@ -99,10 +107,4 @@ public class StudentController {
 
     }
 
-    @PutMapping("/account")
-    public ResponseEntity<String> updateStudent(@Valid @RequestBody StudentSignupRequest student) {
-        //String successfulAccountUpdate = service.updateStudent(student);
-
-        return new ResponseEntity<>("", HttpStatus.OK);
-    }
 }

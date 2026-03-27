@@ -4,8 +4,9 @@ import com.jonathansoriano.enterprisedevgroupproject.domain.StudentRequest;
 import com.jonathansoriano.enterprisedevgroupproject.domain.StudentSignupRequest;
 import com.jonathansoriano.enterprisedevgroupproject.dto.StudentAccountDetailsDto;
 import com.jonathansoriano.enterprisedevgroupproject.dto.StudentDto;
-import com.jonathansoriano.enterprisedevgroupproject.dto.UserDto;
+import com.jonathansoriano.enterprisedevgroupproject.dto.StudentUpdateDto;
 import com.jonathansoriano.enterprisedevgroupproject.util.SqlUtils;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.jdbc.core.BeanPropertyRowMapper;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
@@ -15,11 +16,12 @@ import org.springframework.stereotype.Repository;
 import java.util.List;
 import java.util.Optional;
 
+@Slf4j
 @Repository
 public class StudentRepository {
     // Alias columns to match StudentDto properties (camelCase), otherwise you'll
     // get an exception due to mapping issues
-    public static final String SELECT = """
+    public static final String SELECT_VERSION_UNIVERSITY_NAME = """
             SELECT
               s.id AS id,
               s.first_name AS firstName,
@@ -33,6 +35,22 @@ public class StudentRepository {
               s.social_media_link AS socialMediaLink
             FROM student s
             JOIN university u ON s.university_id = u.id
+            WHERE 1 = 1
+            """;
+
+    public static final String SELECT_VERSION_UNIVERSITY_ID = """
+            SELECT
+              s.id AS id,
+              s.first_name AS firstName,
+              s.last_name AS lastName,
+              s.resident_city AS residentCity,
+              s.resident_state AS residentState,
+              s.university_id AS universityId,
+              s.grade AS grade,
+              s.major AS major,
+              s.email AS email,
+              s.social_media_link AS socialMediaLink
+            FROM student s
             WHERE 1 = 1
             """;
     public static final String AND_FIRSTNAME = "AND LOWER(s.first_name) LIKE :firstName";
@@ -51,6 +69,12 @@ public class StudentRepository {
     public static final String INSERT_NEW_STUDENT = """
             INSERT INTO student (first_name, last_name, resident_city, resident_state, university_id, grade, major,email, social_media_link)
             VALUES (:firstName, :lastName, :residentCity, :residentState, :universityId, :grade, :major, :email, :socialMediaLink)
+            """;
+
+    public static final String UPDATE_STUDENT_INFO = """
+            UPDATE student
+            SET first_name = :firstName, last_name = :lastName, resident_city = :residentCity, resident_state = :residentState, university_id = :universityId, grade = :grade, major = :major,email = :email, social_media_link = :socialMediaLink
+            WHERE id = :id
             """;
 
     private final NamedParameterJdbcTemplate jdbcTemplate;
@@ -85,7 +109,7 @@ public class StudentRepository {
                 .addValue("major", "%" + StringUtils.lowerCase(request.getMajor()) + "%");
         // Building the Query based on whether the field from the request object is
         // either null or not.
-        StringBuilder sql = new StringBuilder(SELECT)
+        StringBuilder sql = new StringBuilder(SELECT_VERSION_UNIVERSITY_NAME)
                 .append(SqlUtils.andAddCondition(AND_FIRSTNAME, request.getFirstName()))
                 .append(SqlUtils.andAddCondition(AND_LASTNAME, request.getLastName()))
                 .append(SqlUtils.andAddCondition(AND_RESIDENT_CITY, request.getResidentCity()))
@@ -102,7 +126,7 @@ public class StudentRepository {
         MapSqlParameterSource params = new MapSqlParameterSource()
                 .addValue("email", email);
 
-        StringBuilder sql = new StringBuilder(SELECT)
+        StringBuilder sql = new StringBuilder(SELECT_VERSION_UNIVERSITY_NAME)
                 .append(SqlUtils.andAddCondition(AND_EMAIL, email));
 
         try {
@@ -113,6 +137,26 @@ public class StudentRepository {
             );
             return Optional.ofNullable(student);
         } catch (Exception ex) {
+            return Optional.empty();
+        }
+    }
+
+    public Optional<StudentUpdateDto> findStudentByEmail(String email){
+        MapSqlParameterSource params = new MapSqlParameterSource()
+                .addValue("email", email);
+
+        StringBuilder sql = new StringBuilder(SELECT_VERSION_UNIVERSITY_ID)
+                .append(SqlUtils.andAddCondition(AND_EMAIL, email));
+
+        try{
+            StudentUpdateDto student = jdbcTemplate.queryForObject(
+                    sql.toString(),
+                    params,
+                    new BeanPropertyRowMapper<>(StudentUpdateDto.class, true)
+            );
+            return Optional.ofNullable(student);
+        }catch (Exception ex){
+            log.error(ex.getMessage(), ex);
             return Optional.empty();
         }
     }
@@ -152,6 +196,28 @@ public class StudentRepository {
         } catch (Exception ex) {
             throw new RuntimeException("Student insertion failed due to a database error", ex);
         }
+    }
+
+    public int updateStudent(StudentUpdateDto updatedStudent){
+        MapSqlParameterSource params = new MapSqlParameterSource()
+                .addValue("id", updatedStudent.getId())
+                .addValue("firstName", updatedStudent.getFirstName())
+                .addValue("lastName", updatedStudent.getLastName())
+                .addValue("residentCity", updatedStudent.getResidentCity())
+                .addValue("residentState", updatedStudent.getResidentState())
+                .addValue("universityId", updatedStudent.getUniversityId())
+                .addValue("grade", updatedStudent.getGrade())
+                .addValue("major", updatedStudent.getMajor())
+                .addValue("email", updatedStudent.getEmail())
+                .addValue("socialMediaLink", updatedStudent.getSocialMediaLink());
+
+        StringBuilder sql = new StringBuilder(UPDATE_STUDENT_INFO);
+        try {
+            return jdbcTemplate.update(sql.toString(), params);
+        }catch (Exception ex){
+            throw new RuntimeException("Student update failed due to a database error", ex);
+        }
+
     }
 
 }

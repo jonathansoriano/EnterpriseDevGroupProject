@@ -23,6 +23,12 @@ public class UserRepository {
             INSERT INTO app_user (role, email, password)
             VALUES (:role, :email, :password)
             """;
+
+    public static final String UPDATE_APP_USER = """
+            UPDATE app_user
+            SET email = :email, password = :password
+            WHERE id = :id
+            """;
     
     private final NamedParameterJdbcTemplate jdbcTemplate;
     
@@ -67,6 +73,21 @@ public class UserRepository {
         try {
             return jdbcTemplate.update(INSERT_NEW_APP_USER, params);
         } catch (Exception ex) {
+            throw new RuntimeException("User insertion failed due to a database error", ex);
+        }
+    }
+
+    public int updateUser(UserDto updatedUser) {
+        MapSqlParameterSource params = new MapSqlParameterSource()
+                .addValue("id", updatedUser.getId())
+                .addValue("email", updatedUser.getEmail())
+                .addValue("password", updatedUser.getPassword());
+
+        StringBuilder sql = new StringBuilder(UPDATE_APP_USER);
+
+        try {
+            return jdbcTemplate.update(sql.toString(), params);
+        }catch (Exception ex) {
             throw new RuntimeException("User insertion failed due to a database error", ex);
         }
     }

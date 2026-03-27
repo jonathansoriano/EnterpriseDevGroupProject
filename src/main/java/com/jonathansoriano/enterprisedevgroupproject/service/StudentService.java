@@ -1,17 +1,19 @@
 package com.jonathansoriano.enterprisedevgroupproject.service;
 
+import com.jonathansoriano.enterprisedevgroupproject.domain.EditStudentDetailsRequest;
 import com.jonathansoriano.enterprisedevgroupproject.domain.StudentRequest;
 import com.jonathansoriano.enterprisedevgroupproject.domain.StudentSignupRequest;
 import com.jonathansoriano.enterprisedevgroupproject.domain.UserRequest;
 import com.jonathansoriano.enterprisedevgroupproject.dto.StudentAccountDetailsDto;
 import com.jonathansoriano.enterprisedevgroupproject.dto.StudentDto;
+import com.jonathansoriano.enterprisedevgroupproject.dto.StudentUpdateDto;
 import com.jonathansoriano.enterprisedevgroupproject.dto.UserDto;
 import com.jonathansoriano.enterprisedevgroupproject.exception.SearchNotFoundException;
 import com.jonathansoriano.enterprisedevgroupproject.model.Student;
 import com.jonathansoriano.enterprisedevgroupproject.model.StudentAccountDetails;
 import com.jonathansoriano.enterprisedevgroupproject.repository.StudentRepository;
 import com.jonathansoriano.enterprisedevgroupproject.repository.UserRepository;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -44,6 +46,7 @@ public class StudentService {
      * @throws SearchNotFoundException if no students are found matching the given
      *                                 criteria.
      */
+    @Cacheable(value = "students")
     public List<Student> find(StudentRequest request) {
         List<Student> students = buildStudentListFromDtoList(studentRepository.find(request));
 
@@ -106,6 +109,36 @@ public class StudentService {
         int studentInsertionResult = studentRepository.insertNewStudent(student);
 
         return "Student Signup Successful!";
+    }
+
+    @Transactional
+    public String updateStudent(String username, EditStudentDetailsRequest studentDetails) {
+        //Do a find in the Student table using the username (email) and assign returned Student from repo to Student object
+        StudentUpdateDto updatedStudent = studentRepository.findStudentByEmail(username).orElseThrow(()-> new SearchNotFoundException("Student Not found!"));
+        //Do a find in the User table using the username (email) and assign returned User from repo to User Object
+        UserDto updatedUser = userRepository.findByEmail(username).orElseThrow(()-> new SearchNotFoundException("User not found!"));
+        //Set the values of the Student object with the values in the EditStudentDetailsRequest object
+        updatedStudent.setFirstName(studentDetails.getFirstName());
+        updatedStudent.setLastName(studentDetails.getLastName());
+        updatedStudent.setEmail(studentDetails.getEmail());
+        updatedStudent.setResidentCity(studentDetails.getResidentCity());
+        updatedStudent.setResidentState(studentDetails.getResidentState());
+        updatedStudent.setUniversityId(studentDetails.getUniversityId());
+        updatedStudent.setGrade(studentDetails.getGrade());
+        updatedStudent.setMajor(studentDetails.getMajor());
+        updatedStudent.setEmail(studentDetails.getEmail());
+        updatedStudent.setSocialMediaLink(studentDetails.getSocialMediaLink());
+        //Set the values of the User object with the values in the EditStudentDetailsRequest object
+        updatedUser.setEmail(studentDetails.getEmail());
+        //Password check to make sure we aren't setting the password to an empty string
+        if (!studentDetails.getPassword().isBlank()) {
+            updatedUser.setPassword(passwordEncoder.encode(studentDetails.getPassword()));
+        }
+        //Send Updated Student Object to the Repository layer and wait to see if the update was successful
+        Integer studentResult = studentRepository.updateStudent(updatedStudent);
+        Integer userResult = userRepository.updateUser(updatedUser);
+
+        return "Account Updated Successfully!";
     }
 
     private String hashPlainTextPassword(String password) {
@@ -193,4 +226,5 @@ public class StudentService {
                 .socialMediaLink(studentDto.getSocialMediaLink())
                 .build();
     }
+
 }

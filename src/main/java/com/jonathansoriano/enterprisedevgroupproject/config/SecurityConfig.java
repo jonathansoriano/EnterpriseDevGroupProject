@@ -47,7 +47,8 @@ public class SecurityConfig {
                         .requestMatchers("/", "/index.html", "/about.html", "/login.html", "/css/**").permitAll() // Pages that dont require authentication
                         .requestMatchers(HttpMethod.POST, "/student").permitAll() // Endpoint that doesn't require authentication
                         .requestMatchers(HttpMethod.GET, "/student").authenticated() // Endpoint that requires authentication
-                        .requestMatchers(HttpMethod.GET, "/student/profile").authenticated() //Endpoint that requires authentication
+                        .requestMatchers(HttpMethod.GET,"/student/profile").authenticated() //Endpoint that requires authentication
+                        .requestMatchers(HttpMethod.PUT,"/student/profile").authenticated() //Endpoint that requires authentication
                         .requestMatchers("/search.html").authenticated() // Page that requires authentication
                         .anyRequest().authenticated()
                 )
@@ -64,7 +65,7 @@ public class SecurityConfig {
                         .permitAll()
                 )
                 .csrf(csrf -> csrf
-                        .ignoringRequestMatchers("/student", "/login")
+                        .ignoringRequestMatchers("/student","/student/profile","/login")
                 );
 
         return http.build();
