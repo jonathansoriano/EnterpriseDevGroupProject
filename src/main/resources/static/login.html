@@ -6,267 +6,312 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Student Network – Tri-State University Directory</title>
     <meta name="description"
-        content="The centralized directory for verified university students across the tri-state area." />
+          content="The centralized directory for verified university students across the tri-state area." />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap"
-        rel="stylesheet" />
+          rel="stylesheet" />
     <link rel="stylesheet" href="/css/style.css" />
 </head>
 
 <body class="auth-page">
 
-    <!-- Navigation -->
-    <nav class="nav">
-        <div class="nav-brand">
-            <div class="nav-logo">🎓</div>
-            <span class="nav-title"><strong>STUDENT</strong>NETWORK</span>
-        </div>
-        <div class="nav-links">
-            <a href="/about.html" class="nav-link">About</a>
-            <a href="/search.html" class="nav-link">Search</a>
-            <span class="nav-divider">|</span>
-            <a href="/login.html" class="btn btn-outline-sm">Sign In</a>
-        </div>
-    </nav>
+<!-- Navigation -->
+<nav class="nav">
+    <div class="nav-brand">
+        <div class="nav-logo">🎓</div>
+        <span class="nav-title"><strong>STUDENT</strong>NETWORK</span>
+    </div>
+    <div class="nav-links">
+        <a href="/about.html" class="nav-link">About</a>
+        <a href="/search.html" class="nav-link">Search</a>
+        <span class="nav-divider">|</span>
+        <a href="/login.html" class="btn btn-outline-sm">Sign In</a>
+    </div>
+</nav>
 
-    <!-- Hero Section -->
-    <div class="auth-layout">
-        <div class="auth-hero">
-            <div class="badge-label">TRI-STATE STUDENT NETWORK</div>
-            <h1 class="auth-headline">Connect with the<br /><em>university</em><br />community.</h1>
-            <p class="auth-subtext">
-                The centralized directory for verified university students across the tri-state area.
-                Network, collaborate, and grow your professional circle.
-            </p>
-            <div class="stats-row">
-                <div class="stat">
-                    <span class="stat-number">8</span>
-                    <span class="stat-label">UNIVERSITIES</span>
-                </div>
-                <div class="stat">
-                    <span class="stat-number">30+</span>
-                    <span class="stat-label">STUDENTS</span>
-                </div>
+<!-- Hero Section -->
+<div class="auth-layout">
+    <div class="auth-hero">
+        <div class="badge-label">TRI-STATE STUDENT NETWORK</div>
+        <h1 class="auth-headline">Connect with the<br /><em>university</em><br />community.</h1>
+        <p class="auth-subtext">
+            The centralized directory for verified university students across the tri-state area.
+            Network, collaborate, and grow your professional circle.
+        </p>
+        <div class="stats-row">
+            <div class="stat">
+                <span class="stat-number">8</span>
+                <span class="stat-label">UNIVERSITIES</span>
             </div>
-        </div>
-
-        <!-- Auth Card -->
-        <div class="auth-card">
-
-            <!-- Tab Switcher -->
-            <div class="tab-bar">
-                <button type="button" class="tab-btn tab-active" id="signin-tab" onclick="switchTab('signin')">SIGN
-                    IN</button>
-                <button type="button" class="tab-btn" id="signup-tab" onclick="switchTab('signup')">SIGN UP</button>
+            <div class="stat">
+                <span class="stat-number">30+</span>
+                <span class="stat-label">STUDENTS</span>
             </div>
-
-            <!-- SIGN IN Form -->
-            <div class="tab-content" id="signin-content">
-                <form action="/login" method="post">
-                    <div class="form-group">
-                        <label class="form-label" for="username">UNIVERSITY EMAIL</label>
-                        <input type="email" id="username" name="username" class="form-input"
-                            placeholder="student@edu.university" required />
-                        <small class="form-hint">* Requires verification via .edu domain</small>
-                    </div>
-                    <div class="form-group">
-                        <label class="form-label" for="password">PASSWORD</label>
-                        <input type="password" id="password" name="password" class="form-input" placeholder="••••••••"
-                            required />
-                    </div>
-                    <div id="login-error" style="display:none; color:#ef4444; margin-bottom:12px; font-size:14px;">
-                        Invalid email or password. Please try again.
-                    </div>
-                    <button type="submit" class="btn-primary-full" id="signin-btn">SIGN IN</button>
-                </form>
-
-                <div class="divider"><span>SECURE ENTRY</span></div>
-                <a href="#" class="sso-link">INSTITUTIONAL SSO LOGIN</a>
-            </div>
-
-            <!-- SIGN UP Form (hidden by default) -->
-            <!-- This form collects all required fields for the StudentSignupRequest DTO on the backend -->
-            <div class="tab-content" id="signup-content" style="display: none;">
-                <form id="signup-form" onsubmit="return handleSignUp(event)">
-
-                    <!-- Row: First Name & Last Name -->
-                    <div class="form-row">
-                        <div class="form-group form-group-half">
-                            <label class="form-label" for="reg-firstName">FIRST NAME</label>
-                            <input type="text" id="reg-firstName" name="firstName" class="form-input"
-                                placeholder="John" required />
-                        </div>
-                        <div class="form-group form-group-half">
-                            <label class="form-label" for="reg-lastName">LAST NAME</label>
-                            <input type="text" id="reg-lastName" name="lastName" class="form-input"
-                                placeholder="Doe" required />
-                        </div>
-                    </div>
-
-                    <!-- University Email -->
-                    <div class="form-group">
-                        <label class="form-label" for="reg-email">UNIVERSITY EMAIL</label>
-                        <input type="email" id="reg-email" name="email" class="form-input"
-                            placeholder="student@university.edu" pattern=".+\.edu$"
-                            title="Please use a valid .edu email address" required />
-                        <small class="form-hint">* Only .edu email addresses are accepted</small>
-                        <small class="form-error" id="email-error"
-                            style="display:none; color:#ef4444; margin-top:4px;"></small>
-                    </div>
-
-                    <!-- Password -->
-                    <div class="form-group">
-                        <label class="form-label" for="reg-password">CREATE PASSWORD</label>
-                        <input type="password" id="reg-password" name="password" class="form-input"
-                            placeholder="Min. 8 characters" minlength="8" required />
-                    </div>
-
-                    <!-- University Selection (maps to universityId integer on the backend) -->
-                    <div class="form-group">
-                        <label class="form-label" for="reg-university">UNIVERSITY</label>
-                        <select id="reg-university" name="universityId" class="form-input" required>
-                            <option value="">Select University</option>
-                            <option value="1">University of Cincinnati</option>
-                            <option value="2">Northern Kentucky University</option>
-                            <option value="3">Xavier University</option>
-                            <option value="4">Miami University</option>
-                            <option value="5">Thomas More University</option>
-                            <option value="6">Cincinnati State</option>
-                            <option value="7">Mount St. Joseph University</option>
-                            <option value="8">Cincinnati Christian University</option>
-                        </select>
-                    </div>
-
-                    <!-- Row: Grade & Major -->
-                    <div class="form-row">
-                        <div class="form-group form-group-half">
-                            <label class="form-label" for="reg-grade">GRADE</label>
-                            <select id="reg-grade" name="grade" class="form-input" required>
-                                <option value="">Select Grade</option>
-                                <option value="Freshman">Freshman</option>
-                                <option value="Sophomore">Sophomore</option>
-                                <option value="Junior">Junior</option>
-                                <option value="Senior">Senior</option>
-                            </select>
-                        </div>
-                        <div class="form-group form-group-half">
-                            <label class="form-label" for="reg-major">MAJOR</label>
-                            <input type="text" id="reg-major" name="major" class="form-input"
-                                placeholder="e.g. Computer Science" required />
-                        </div>
-                    </div>
-
-                    <!-- Row: City & State -->
-                    <div class="form-row">
-                        <div class="form-group form-group-half">
-                            <label class="form-label" for="reg-city">CITY</label>
-                            <input type="text" id="reg-city" name="residentCity" class="form-input"
-                                placeholder="Cincinnati" required />
-                        </div>
-                        <div class="form-group form-group-half">
-                            <label class="form-label" for="reg-state">STATE</label>
-                            <select id="reg-state" name="residentState" class="form-input" required>
-                                <option value="">Select</option>
-                                <option value="OH">OH</option>
-                                <option value="KY">KY</option>
-                                <option value="IN">IN</option>
-                            </select>
-                        </div>
-                    </div>
-
-                    <!-- Social Media Link (optional) -->
-                    <div class="form-group">
-                        <label class="form-label" for="reg-social">SOCIAL MEDIA LINK (OPTIONAL)</label>
-                        <input type="url" id="reg-social" name="socialMediaLink" class="form-input"
-                            placeholder="https://linkedin.com/in/your-profile" />
-                    </div>
-
-                    <!-- Submit -->
-                    <button type="submit" class="btn-primary-full" id="signup-btn">VERIFIED SIGN UP</button>
-
-                    <!-- Status message area for success/error feedback -->
-                    <div id="signup-message" style="margin-top: 12px; text-align: center; font-size: 14px;"></div>
-                </form>
-
-                <div class="divider"><span>SECURE ENTRY</span></div>
-                <a href="#" class="sso-link">INSTITUTIONAL SSO LOGIN</a>
-            </div>
-
         </div>
     </div>
 
-    <script>
-        /**
-         * Switches between Sign In and Sign Up tabs.
-         * Toggles visibility of the sign-in and sign-up content panels,
-         * and updates the active tab styling accordingly.
-         */
-        function switchTab(tab) {
-            const signinTab = document.getElementById('signin-tab');
-            const signupTab = document.getElementById('signup-tab');
-            const signinContent = document.getElementById('signin-content');
-            const signupContent = document.getElementById('signup-content');
+    <!-- Auth Card -->
+    <div class="auth-card">
 
-            if (tab === 'signin') {
-                signinTab.classList.add('tab-active');
-                signupTab.classList.remove('tab-active');
-                signinContent.style.display = 'block';
-                signupContent.style.display = 'none';
-            } else {
-                signupTab.classList.add('tab-active');
-                signinTab.classList.remove('tab-active');
-                signupContent.style.display = 'block';
-                signinContent.style.display = 'none';
-            }
+        <!-- Tab Switcher -->
+        <div class="tab-bar">
+            <button type="button" class="tab-btn tab-active" id="signin-tab" onclick="switchTab('signin')">
+                SIGN
+                IN
+            </button>
+            <button type="button" class="tab-btn" id="signup-tab" onclick="switchTab('signup')">SIGN UP</button>
+        </div>
+
+        <!-- SIGN IN Form -->
+        <div class="tab-content" id="signin-content">
+            <form action="/login" method="post">
+                <div class="form-group">
+                    <label class="form-label" for="username">UNIVERSITY EMAIL</label>
+                    <input type="email" id="username" name="username" class="form-input"
+                           placeholder="student@edu.university" required />
+                    <small class="form-hint">* Requires verification via .edu domain</small>
+                </div>
+                <div class="form-group">
+                    <label class="form-label" for="password">PASSWORD</label>
+                    <input type="password" id="password" name="password" class="form-input" placeholder="••••••••"
+                           required />
+                </div>
+                <div id="login-error" style="display:none; color:#ef4444; margin-bottom:12px; font-size:14px;">
+                    Invalid email or password. Please try again.
+                </div>
+                <button type="submit" class="btn-primary-full" id="signin-btn">SIGN IN</button>
+            </form>
+
+            <div class="divider"><span>SECURE ENTRY</span></div>
+            <a href="#" class="sso-link">INSTITUTIONAL SSO LOGIN</a>
+        </div>
+
+        <!-- SIGN UP Form (hidden by default) -->
+        <!-- This form collects all required fields for the StudentSignupRequest DTO on the backend -->
+        <div class="tab-content" id="signup-content" style="display: none;">
+            <form id="signup-form" onsubmit="return handleSignUp(event)">
+
+                <!-- Row: First Name & Last Name -->
+                <div class="form-row">
+                    <div class="form-group form-group-half">
+                        <label class="form-label" for="reg-firstName">FIRST NAME</label>
+                        <input type="text" id="reg-firstName" name="firstName" class="form-input"
+                               placeholder="John" required />
+                    </div>
+                    <div class="form-group form-group-half">
+                        <label class="form-label" for="reg-lastName">LAST NAME</label>
+                        <input type="text" id="reg-lastName" name="lastName" class="form-input"
+                               placeholder="Doe" required />
+                    </div>
+                </div>
+
+                <!-- University Email -->
+                <div class="form-group">
+                    <label class="form-label" for="reg-email">UNIVERSITY EMAIL</label>
+                    <input type="email" id="reg-email" name="email" class="form-input"
+                           placeholder="student@university.edu" pattern=".+\.edu$"
+                           title="Please use a valid .edu email address" required />
+                    <small class="form-hint">* Only .edu email addresses are accepted</small>
+                    <small class="form-error" id="email-error"
+                           style="display:none; color:#ef4444; margin-top:4px;"></small>
+                </div>
+
+                <!-- Password -->
+                <div class="form-group">
+                    <label class="form-label" for="reg-password">CREATE PASSWORD</label>
+                    <input type="password" id="reg-password" name="password" class="form-input"
+                           placeholder="Min. 8 characters" minlength="8" required />
+                </div>
+
+                <!-- University Selection (maps to universityId integer on the backend) -->
+                <div class="form-group">
+                    <label class="form-label" for="reg-university">UNIVERSITY</label>
+                    <select id="reg-university" name="universityId" class="form-input" required>
+                        <option value="">Select University</option>
+                        <option value="1">University of Cincinnati</option>
+                        <option value="2">Northern Kentucky University</option>
+                        <option value="3">Xavier University</option>
+                        <option value="4">Miami University</option>
+                        <option value="5">Thomas More University</option>
+                        <option value="6">Cincinnati State</option>
+                        <option value="7">Mount St. Joseph University</option>
+                        <option value="8">Cincinnati Christian University</option>
+                    </select>
+                </div>
+
+                <!-- Row: Grade & Major -->
+                <div class="form-row">
+                    <div class="form-group form-group-half">
+                        <label class="form-label" for="reg-grade">GRADE</label>
+                        <select id="reg-grade" name="grade" class="form-input" required>
+                            <option value="">Select Grade</option>
+                            <option value="Freshman">Freshman</option>
+                            <option value="Sophomore">Sophomore</option>
+                            <option value="Junior">Junior</option>
+                            <option value="Senior">Senior</option>
+                        </select>
+                    </div>
+                    <div class="form-group form-group-half">
+                        <label class="form-label" for="reg-major">MAJOR</label>
+                        <input type="text" id="reg-major" name="major" class="form-input"
+                               placeholder="e.g. Computer Science" required />
+                    </div>
+                </div>
+
+                <!-- Row: City & State -->
+                <div class="form-row">
+                    <div class="form-group form-group-half">
+                        <label class="form-label" for="reg-city">CITY</label>
+                        <input type="text" id="reg-city" name="residentCity" class="form-input"
+                               placeholder="Cincinnati" required />
+                    </div>
+                    <div class="form-group form-group-half">
+                        <label class="form-label" for="reg-state">STATE</label>
+                        <select id="reg-state" name="residentState" class="form-input" required>
+                            <option value="">Select</option>
+                            <option value="OH">OH</option>
+                            <option value="KY">KY</option>
+                            <option value="IN">IN</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Social Media Link (optional) -->
+                <div class="form-group">
+                    <label class="form-label" for="reg-social">SOCIAL MEDIA LINK (OPTIONAL)</label>
+                    <input type="url" id="reg-social" name="socialMediaLink" class="form-input"
+                           placeholder="https://linkedin.com/in/your-profile" />
+                </div>
+
+                <!-- Submit -->
+                <button type="submit" class="btn-primary-full" id="signup-btn">VERIFIED SIGN UP</button>
+
+                <!-- Status message area for success/error feedback -->
+                <div id="signup-message" style="margin-top: 12px; text-align: center; font-size: 14px;"></div>
+            </form>
+
+            <div class="divider"><span>SECURE ENTRY</span></div>
+            <a href="#" class="sso-link">INSTITUTIONAL SSO LOGIN</a>
+        </div>
+
+    </div>
+</div>
+
+<script>
+    /**
+     * Switches between Sign In and Sign Up tabs.
+     * Toggles visibility of the sign-in and sign-up content panels,
+     * and updates the active tab styling accordingly.
+     */
+    function switchTab(tab) {
+        const signinTab = document.getElementById('signin-tab');
+        const signupTab = document.getElementById('signup-tab');
+        const signinContent = document.getElementById('signin-content');
+        const signupContent = document.getElementById('signup-content');
+
+        if (tab === 'signin') {
+            signinTab.classList.add('tab-active');
+            signupTab.classList.remove('tab-active');
+            signinContent.style.display = 'block';
+            signupContent.style.display = 'none';
+        } else {
+            signupTab.classList.add('tab-active');
+            signinTab.classList.remove('tab-active');
+            signupContent.style.display = 'block';
+            signinContent.style.display = 'none';
+        }
+    }
+
+    // Check URL parameters for error or logout messages
+    window.addEventListener('DOMContentLoaded', function() {
+        const urlParams = new URLSearchParams(window.location.search);
+        const errorDiv = document.getElementById('login-error');
+
+        if (urlParams.has('error')) {
+            errorDiv.style.display = 'block';
         }
 
-        // Check URL parameters for error or logout messages
-        window.addEventListener('DOMContentLoaded', function() {
-            const urlParams = new URLSearchParams(window.location.search);
-            const errorDiv = document.getElementById('login-error');
+        if (urlParams.has('logout')) {
+            alert('You have been logged out successfully.');
+        }
+    });
 
-            if (urlParams.has('error')) {
-                errorDiv.style.display = 'block';
-            }
+    /**
+     * Handles the sign-up form submission.
+     * Collects all form fields, builds a JSON payload matching the backend's
+     * StudentSignupRequest DTO, and sends a POST request to /student.
+     * On success, notifies the user and switches to the sign-in tab.
+     * On failure, displays the error message returned by the server.
+     */
+    async function handleSignUp(e) {
+        e.preventDefault();
 
-            if (urlParams.has('logout')) {
-                alert('You have been logged out successfully.');
-            }
-        });
+        const emailInput = document.getElementById('reg-email');
+        const emailError = document.getElementById('email-error');
+        const messageDiv = document.getElementById('signup-message');
+        const email = emailInput.value.trim().toLowerCase();
 
-        /**
-         * Handles the sign-up form submission.
-         * Collects all form fields, builds a JSON payload matching the backend's
-         * StudentSignupRequest DTO, and sends a POST request to /studentSignUp.
-         * On success, notifies the user and redirects to the search page.
-         * On failure, displays the error message returned by the server.
-         */
-        async function handleSignUp(e) {
-            e.preventDefault();
+        // Clear previous error
+        emailError.style.display = 'none';
+        emailError.textContent = '';
+        emailInput.style.borderColor = '';
+        messageDiv.textContent = '';
 
-            const emailInput = document.getElementById('reg-email');
-            const emailError = document.getElementById('email-error');
-            const email = emailInput.value.trim().toLowerCase();
-
-            // Clear previous error
-            emailError.style.display = 'none';
-            emailError.textContent = '';
-            emailInput.style.borderColor = '';
-
-            // Validate .edu email
-            if (!email.endsWith('.edu')) {
-                emailError.textContent = 'Only .edu email addresses are accepted. Please use your university email.';
-                emailError.style.display = 'block';
-                emailInput.style.borderColor = '#ef4444';
-                emailInput.focus();
-                return false;
-            }
-
-            alert('Sign-up functionality is not yet connected to a backend registration service.');
+        // Validate .edu email
+        if (!email.endsWith('.edu')) {
+            emailError.textContent = 'Only .edu email addresses are accepted. Please use your university email.';
+            emailError.style.display = 'block';
+            emailInput.style.borderColor = '#ef4444';
+            emailInput.focus();
             return false;
         }
-    </script>
+
+        // Build JSON payload matching StudentSignupRequest DTO
+        const payload = {
+            firstName: document.getElementById('reg-firstName').value,
+            lastName: document.getElementById('reg-lastName').value,
+            email: email,
+            password: document.getElementById('reg-password').value,
+            universityId: parseInt(document.getElementById('reg-university').value),
+            grade: document.getElementById('reg-grade').value,
+            major: document.getElementById('reg-major').value,
+            residentCity: document.getElementById('reg-city').value,
+            residentState: document.getElementById('reg-state').value,
+            socialMediaLink: document.getElementById('reg-social').value
+        };
+
+        try {
+            const response = await fetch('/student', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(payload)
+            });
+
+            const text = await response.text();
+
+            if (response.ok) {
+                messageDiv.style.color = '#22c55e';
+                messageDiv.textContent = text;
+
+                setTimeout(() => {
+                    switchTab('signin');
+                }, 1500);
+            } else {
+                messageDiv.style.color = '#ef4444';
+                messageDiv.textContent = text || "Signup failed.";
+            }
+
+        } catch (error) {
+            messageDiv.style.color = '#ef4444';
+            messageDiv.textContent = "Unable to connect to server.";
+        }
+
+        return false;
+    }
+</script>
 
 </body>
 

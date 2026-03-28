@@ -6,182 +6,195 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Search Students – Tri-State Student Directory</title>
     <meta name="description"
-        content="Search the tri-state university student directory by name, university, location, and more." />
+          content="Search the tri-state university student directory by name, university, location, and more." />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap"
-        rel="stylesheet" />
+          rel="stylesheet" />
     <link rel="stylesheet" href="/css/style.css" />
 </head>
 
 <body class="search-page">
 
-    <!-- Top Navigation -->
-    <nav class="nav nav-search">
-        <div class="nav-brand">
-            <div class="nav-logo">🎓</div>
-            <span class="nav-title">TRI-STATE STUDENT DIRECTORY</span>
-        </div>
-        <div class="nav-links">
-            <a href="/about.html" class="nav-link">About</a>
-            <a href="/search.html" class="nav-link nav-link-active">Search</a>
-            <a href="#" class="nav-link">Universities</a>
-        </div>
-    </nav>
+<!-- Top Navigation -->
+<nav class="nav nav-search">
+    <div class="nav-brand">
+        <div class="nav-logo">🎓</div>
+        <span class="nav-title">TRI-STATE STUDENT DIRECTORY</span>
+    </div>
+    <div class="nav-links">
+        <a href="/about.html" class="nav-link">About</a>
+        <a href="/search.html" class="nav-link nav-link-active">Search</a>
+        <a href="#" class="nav-link">Universities</a>
+    </div>
+</nav>
 
-    <div class="search-layout">
-        <!-- Sidebar Filters -->
-        <aside class="sidebar">
-            <h2 class="sidebar-title">SEARCH FILTERS</h2>
-            <p class="sidebar-subtitle">Refine directory results</p>
+<div class="search-layout">
+    <!-- Sidebar Filters -->
+    <aside class="sidebar">
+        <h2 class="sidebar-title">SEARCH FILTERS</h2>
+        <p class="sidebar-subtitle">Refine directory results</p>
 
-            <form id="search-form" onsubmit="return false;">
-                <div class="filter-group">
-                    <label class="filter-label" for="firstName">FIRST NAME</label>
-                    <input type="text" id="firstName" name="firstName" class="filter-input"
-                        placeholder="Enter first name..." />
-                </div>
+        <form id="search-form" onsubmit="return false;">
+            <div class="filter-group">
+                <label class="filter-label" for="firstName">FIRST NAME</label>
+                <input type="text" id="firstName" name="firstName" class="filter-input"
+                       placeholder="Enter first name..." />
+            </div>
 
-                <div class="filter-group">
-                    <label class="filter-label" for="lastName">LAST NAME</label>
-                    <input type="text" id="lastName" name="lastName" class="filter-input"
-                        placeholder="Enter last name..." />
-                </div>
+            <div class="filter-group">
+                <label class="filter-label" for="lastName">LAST NAME</label>
+                <input type="text" id="lastName" name="lastName" class="filter-input"
+                       placeholder="Enter last name..." />
+            </div>
 
-                <div class="filter-group">
-                    <label class="filter-label" for="universityName">UNIVERSITY</label>
-                    <select id="universityName" name="universityName" class="filter-select">
-                        <option value="">All Universities</option>
-                        <option value="University of Cincinnati">University of Cincinnati</option>
-                        <option value="Northern Kentucky University">Northern Kentucky University</option>
-                        <option value="Xavier University">Xavier University</option>
-                        <option value="Miami University">Miami University</option>
-                        <option value="Thomas More University">Thomas More University</option>
-                        <option value="Cincinnati State Technical and Community College">Cincinnati State</option>
-                        <option value="Mount St. Joseph University">Mount St. Joseph University</option>
-                        <option value="Cincinnati Christian University">Cincinnati Christian University</option>
-                    </select>
-                </div>
+            <div class="filter-group">
+                <label class="filter-label" for="universityName">UNIVERSITY</label>
+                <select id="universityName" name="universityName" class="filter-select">
+                    <option value="">All Universities</option>
+                    <option value="University of Cincinnati">University of Cincinnati</option>
+                    <option value="Northern Kentucky University">Northern Kentucky University</option>
+                    <option value="Xavier University">Xavier University</option>
+                    <option value="Miami University">Miami University</option>
+                    <option value="Thomas More University">Thomas More University</option>
+                    <option value="Cincinnati State Technical and Community College">Cincinnati State</option>
+                    <option value="Mount St. Joseph University">Mount St. Joseph University</option>
+                    <option value="Cincinnati Christian University">Cincinnati Christian University</option>
+                </select>
+            </div>
 
-                <div class="filter-group">
-                    <label class="filter-label" for="grade">GRADE LEVEL</label>
-                    <select id="grade" name="grade" class="filter-select">
-                        <option value="">All Grades</option>
-                        <option value="Freshman">Freshman</option>
-                        <option value="Sophomore">Sophomore</option>
-                        <option value="Junior">Junior</option>
-                        <option value="Senior">Senior</option>
-                    </select>
-                </div>
+            <div class="filter-group">
+                <label class="filter-label" for="grade">GRADE LEVEL</label>
+                <select id="grade" name="grade" class="filter-select">
+                    <option value="">All Grades</option>
+                    <option value="Freshman">Freshman</option>
+                    <option value="Sophomore">Sophomore</option>
+                    <option value="Junior">Junior</option>
+                    <option value="Senior">Senior</option>
+                </select>
+            </div>
 
-                <div class="filter-group">
-                    <label class="filter-label">STATE</label>
-                    <div class="state-toggle">
-                        <button type="button" class="state-btn" onclick="toggleState(this, 'OH')">OH</button>
-                        <button type="button" class="state-btn" onclick="toggleState(this, 'KY')">KY</button>
-                        <button type="button" class="state-btn" onclick="toggleState(this, 'IN')">IN</button>
-                        <input type="hidden" id="state" name="state" value="" />
-                    </div>
-                </div>
-
-                <div class="filter-group">
-                    <label class="filter-label" for="city">CITY</label>
-                    <input type="text" id="city" name="city" class="filter-input" placeholder="Enter city..." />
-                </div>
-
-                <button type="button" class="btn-search" id="search-btn" onclick="searchStudents()">
-                    🔍 SEARCH
-                </button>
-                <a href="/search.html" class="clear-link">CLEAR FILTERS</a>
-            </form>
-        </aside>
-
-        <!-- Main Content -->
-        <main class="search-main">
-            <!-- Results Container (populated by JavaScript) -->
-            <div id="results-container">
-                <!-- Empty state shown by default -->
-                <div class="empty-state" id="empty-state">
-                    <div class="empty-icon">🎓</div>
-                    <h2 class="empty-title">Find Students Across the Tri-State Area</h2>
-                    <p class="empty-text">
-                        Use the filters on the left to search for students from universities
-                        in Ohio, Kentucky, and Indiana. You can search by name, university,
-                        location, and grade level.
-                    </p>
+            <div class="filter-group">
+                <label class="filter-label">STATE</label>
+                <div class="state-toggle">
+                    <button type="button" class="state-btn" onclick="toggleState(this, 'OH')">OH</button>
+                    <button type="button" class="state-btn" onclick="toggleState(this, 'KY')">KY</button>
+                    <button type="button" class="state-btn" onclick="toggleState(this, 'IN')">IN</button>
+                    <input type="hidden" id="state" name="state" value="" />
                 </div>
             </div>
-        </main>
-    </div>
 
-    <script>
-        /**
-         * Handles toggling the state filter buttons.
-         */
-        function toggleState(btn, stateVal) {
-            const stateInput = document.getElementById('state');
-            const allBtns = document.querySelectorAll('.state-btn');
+            <div class="filter-group">
+                <label class="filter-label" for="city">CITY</label>
+                <input type="text" id="city" name="city" class="filter-input" placeholder="Enter city..." />
+            </div>
 
-            if (stateInput.value === stateVal) {
-                stateInput.value = '';
-                btn.classList.remove('state-btn-active');
-            } else {
-                stateInput.value = stateVal;
-                allBtns.forEach(b => b.classList.remove('state-btn-active'));
-                btn.classList.add('state-btn-active');
-            }
+            <button type="button" class="btn-search" id="search-btn" onclick="searchStudents()">
+                🔍 SEARCH
+            </button>
+            <a href="/search.html" class="clear-link">CLEAR FILTERS</a>
+        </form>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="search-main">
+        <!-- Results Container (populated by JavaScript) -->
+        <div id="results-container">
+            <!-- Empty state shown by default -->
+            <div class="empty-state" id="empty-state">
+                <div class="empty-icon">🎓</div>
+                <h2 class="empty-title">Find Students Across the Tri-State Area</h2>
+                <p class="empty-text">
+                    Use the filters on the left to search for students from universities
+                    in Ohio, Kentucky, and Indiana. You can search by name, university,
+                    location, and grade level.
+                </p>
+            </div>
+        </div>
+    </main>
+</div>
+
+<script>
+    /**
+     * Handles toggling the state filter buttons.
+     */
+    function toggleState(btn, stateVal) {
+        const stateInput = document.getElementById('state');
+        const allBtns = document.querySelectorAll('.state-btn');
+
+        if (stateInput.value === stateVal) {
+            stateInput.value = '';
+            btn.classList.remove('state-btn-active');
+        } else {
+            stateInput.value = stateVal;
+            allBtns.forEach(b => b.classList.remove('state-btn-active'));
+            btn.classList.add('state-btn-active');
         }
+    }
 
-        /**
-         * Builds the query string from form fields and calls the backend API.
-         */
-        async function searchStudents() {
-            const container = document.getElementById('results-container');
+    /**
+     * Builds the query string from form fields and calls the backend API.
+     */
+    async function searchStudents() {
+        const container = document.getElementById('results-container');
 
-            // Show loading state
-            container.innerHTML = `
+        // Show loading state
+        container.innerHTML = `
                 <div class="loading-state">
                     <div class="spinner"></div>
                     <span class="loading-text">Searching students…</span>
                 </div>
             `;
 
-            // Build query params from form fields
-            const params = new URLSearchParams();
-            const fields = ['firstName', 'lastName', 'universityName', 'grade', 'state', 'city'];
-            fields.forEach(field => {
-                const value = document.getElementById(field).value.trim();
-                if (value) {
-                    params.append(field, value);
-                }
-            });
+        // Build query params from form fields
+        const params = new URLSearchParams();
 
-            const url = '/findStudent' + (params.toString() ? '?' + params.toString() : '');
+        const firstName = document.getElementById('firstName').value.trim();
+        const lastName = document.getElementById('lastName').value.trim();
+        const universityName = document.getElementById('universityName').value.trim();
+        const grade = document.getElementById('grade').value.trim();
+        const state = document.getElementById('state').value.trim();
+        const city = document.getElementById('city').value.trim();
 
-            try {
-                const response = await fetch(url);
+        if (firstName) params.append('firstName', firstName);
+        if (lastName) params.append('lastName', lastName);
+        if (universityName) params.append('universityName', universityName);
+        if (grade) params.append('grade', grade);
 
-                if (response.ok) {
-                    const students = await response.json();
-                    renderResults(students);
-                } else if (response.status === 404) {
+        /* Map frontend names to backend DTO fields */
+        if (state) params.append('residentState', state);
+        if (city) params.append('residentCity', city);
+
+        const url = '/student/search' + (params.toString() ? '?' + params.toString() : '');
+
+        try {
+            const response = await fetch(url);
+
+            if (response.ok) {
+                const students = await response.json();
+
+                if (!students || students.length === 0) {
                     renderNoResults();
-                } else {
-                    const errorData = await response.json().catch(() => null);
-                    renderError(errorData ? errorData.message : 'An unexpected error occurred.');
+                    return;
                 }
-            } catch (err) {
-                renderError('Could not connect to the server. Please try again.');
+
+                renderResults(students);
+            } else {
+                const errorData = await response.json().catch(() => null);
+                renderError(errorData ? errorData.message : 'An unexpected error occurred.');
             }
+        } catch (err) {
+            renderError('Could not connect to the server. Please try again.');
         }
+    }
 
-        /**
-         * Renders the student result cards.
-         */
-        function renderResults(students) {
-            const container = document.getElementById('results-container');
+    /**
+     * Renders the student result cards.
+     */
+    function renderResults(students) {
+        const container = document.getElementById('results-container');
 
-            let html = `
+        let html = `
                 <div class="results-header">
                     <div>
                         <h1 class="results-title">Student Results</h1>
@@ -195,9 +208,9 @@
                 <div class="results-grid">
             `;
 
-            students.forEach(student => {
-                const gradeClass = 'grade-' + student.grade.toLowerCase();
-                html += `
+        students.forEach(student => {
+            const gradeClass = 'grade-' + student.grade.toLowerCase();
+            html += `
                     <div class="student-card">
                         <div class="card-badge ${gradeClass}">${escapeHtml(student.grade)}</div>
                         <div class="card-header-row">
@@ -231,18 +244,18 @@
                         </div>
                     </div>
                 `;
-            });
+        });
 
-            html += '</div>';
-            container.innerHTML = html;
-        }
+        html += '</div>';
+        container.innerHTML = html;
+    }
 
-        /**
-         * Renders the "no results" state.
-         */
-        function renderNoResults() {
-            const container = document.getElementById('results-container');
-            container.innerHTML = `
+    /**
+     * Renders the "no results" state.
+     */
+    function renderNoResults() {
+        const container = document.getElementById('results-container');
+        container.innerHTML = `
                 <div class="no-results">
                     <div class="no-results-icon">🔍</div>
                     <h2 class="no-results-title">No Students Found</h2>
@@ -253,14 +266,14 @@
                     <a href="/search.html" class="btn-primary-sm">Clear &amp; Start Over</a>
                 </div>
             `;
-        }
+    }
 
-        /**
-         * Renders an error message.
-         */
-        function renderError(message) {
-            const container = document.getElementById('results-container');
-            container.innerHTML = `
+    /**
+     * Renders an error message.
+     */
+    function renderError(message) {
+        const container = document.getElementById('results-container');
+        container.innerHTML = `
                 <div class="no-results">
                     <div class="no-results-icon">⚠️</div>
                     <h2 class="no-results-title">Something Went Wrong</h2>
@@ -268,25 +281,25 @@
                     <button class="btn-primary-sm" onclick="searchStudents()">Try Again</button>
                 </div>
             `;
-        }
+    }
 
-        /**
-         * Escapes HTML to prevent XSS.
-         */
-        function escapeHtml(text) {
-            if (!text) return '';
-            const div = document.createElement('div');
-            div.textContent = text;
-            return div.innerHTML;
-        }
+    /**
+     * Escapes HTML to prevent XSS.
+     */
+    function escapeHtml(text) {
+        if (!text) return '';
+        const div = document.createElement('div');
+        div.textContent = text;
+        return div.innerHTML;
+    }
 
-        // Allow pressing Enter in any input field to trigger search
-        document.querySelectorAll('.filter-input').forEach(input => {
-            input.addEventListener('keydown', e => {
-                if (e.key === 'Enter') searchStudents();
-            });
+    // Allow pressing Enter in any input field to trigger search
+    document.querySelectorAll('.filter-input').forEach(input => {
+        input.addEventListener('keydown', e => {
+            if (e.key === 'Enter') searchStudents();
         });
-    </script>
+    });
+</script>
 </body>
 
 </html>
