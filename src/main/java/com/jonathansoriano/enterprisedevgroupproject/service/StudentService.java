@@ -132,12 +132,6 @@ public class StudentService {
 
         UserDto updatedUser = updateUserDto(outdatedUser, studentDetails);
 
-        //Set the values of the User object with the values in the EditStudentDetailsRequest object
-        //Password check to make sure we aren't setting the password to an empty string
-        if (!studentDetails.getPassword().isBlank()) {
-            outdatedUser.setPassword(passwordEncoder.encode(studentDetails.getPassword()));
-        }
-
         //Send Updated Student Object to the Repository layer and wait to see if the update was successful
         Integer studentResult = studentRepository.updateStudent(updatedStudent);
         Integer userResult = userRepository.updateUser(updatedUser);

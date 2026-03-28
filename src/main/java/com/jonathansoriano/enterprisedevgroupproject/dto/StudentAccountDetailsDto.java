@@ -11,7 +11,7 @@ import lombok.NoArgsConstructor;
 @Builder
 //This DTO is used to return Student Account info when searching for a Particular student account (GET endpoint "/student/profile")
 public class StudentAccountDetailsDto {
-    private String id;
+    private Long id;
     private String firstName;
     private String lastName;
     private String residentCity;

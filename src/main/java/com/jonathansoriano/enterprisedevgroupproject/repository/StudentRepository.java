@@ -258,12 +258,7 @@ public class StudentRepository {
                 .addValue("socialMediaLink", updatedStudent.getSocialMediaLink());
 
         StringBuilder sql = new StringBuilder(UPDATE_STUDENT_INFO);
-        try {
-            return jdbcTemplate.update(sql.toString(), params);
-        }catch (Exception ex){
-            throw new RuntimeException("Student update failed due to a database error", ex);
-        }
-
+        return jdbcTemplate.update(sql.toString(), params);
     }
 
 }
