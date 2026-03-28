@@ -36,7 +36,14 @@ public class UserRepository {
     public UserRepository(NamedParameterJdbcTemplate jdbcTemplate) {
         this.jdbcTemplate = jdbcTemplate;
     }
-    
+
+    /**
+     * Retrieves a user from the database based on their email address.
+     *
+     * @param email the email address of the user to be retrieved.
+     * @return an {@link Optional} containing the {@link UserDto} if a user with the specified email exists.
+     *         If no user is found, an empty {@link Optional} is returned when EmptyResultDataAccessException is thrown.
+     */
     public Optional<UserDto> findByEmail(String email) {
         MapSqlParameterSource params = new MapSqlParameterSource()
                 .addValue("email", email);
@@ -78,6 +85,16 @@ public class UserRepository {
         }
     }
 
+    /**
+     * Updates an existing user's information in the database.
+     * This method updates the user's details such as email and password based on the provided {@link UserDto}.
+     *
+     * @param updatedUser the {@link UserDto} object containing the updated information for the user,
+     *                    including their ID, email, and password.
+     * @return an integer indicating the number of rows affected by the update operation.
+     *         A value greater than 0 indicates a successful update.
+     * @throws RuntimeException if the update operation fails due to a database error.
+     */
     public int updateUser(UserDto updatedUser) {
         MapSqlParameterSource params = new MapSqlParameterSource()
                 .addValue("id", updatedUser.getId())

@@ -123,6 +123,20 @@ public class StudentRepository {
         return jdbcTemplate.query(sql.toString(), params, new BeanPropertyRowMapper<>(StudentDto.class, true));
     }
 
+    /**
+     * This method is used to return Student Account information to the user. (GET /profile)
+     * Searches for a student account in the database using the provided email address.
+     * The method constructs a query dynamically with the email as a parameter
+     * and attempts to retrieve a {@link StudentAccountDetailsDto} object.
+     * If a matching record is found, it returns an {@link Optional} containing the object.
+     * If no record is found, or an {@link EmptyResultDataAccessException} is thrown,
+     * an empty {@link Optional} is returned.
+     *
+     * @param email the email address of the student to be searched.
+     *              This parameter should not be null or empty.
+     * @return an {@link Optional} containing the {@link StudentAccountDetailsDto} object
+     *         if a matching student is found; otherwise, an empty {@link Optional}.
+     */
     public Optional<StudentAccountDetailsDto> findByEmail(String email) {
         MapSqlParameterSource params = new MapSqlParameterSource()
                 .addValue("email", email);
@@ -146,6 +160,18 @@ public class StudentRepository {
         }
     }
 
+    /**
+     * This method is used to determine the existence of the potentially updated Student. (PUT /profile)
+     * Searches for a student in the database using the provided email address.
+     * The method queries the database with the email as a parameter and returns
+     * an {@link Optional} containing the {@link StudentUpdateDto} object if the student is found.
+     * If no student is found, an empty {@link Optional} is returned when EmptyResultDataAccessException
+     * is thrown
+     *
+     * @param email the email address of the student to be queried. This should not be null.
+     * @return an {@link Optional} containing the {@link StudentUpdateDto} object if a student
+     *         matching the given email exists, or an empty {@link Optional} if no match is found.
+     */
     public Optional<StudentUpdateDto> findStudentByEmail(String email){
         MapSqlParameterSource params = new MapSqlParameterSource()
                 .addValue("email", email);
@@ -205,6 +231,19 @@ public class StudentRepository {
         }
     }
 
+    /**
+     * Updates the details of an existing student in the database using the provided
+     * {@link StudentUpdateDto} object. The method constructs an SQL update query
+     * with the student's information and executes it.
+     *
+     * @param updatedStudent the {@link StudentUpdateDto} object containing the updated
+     *                       information of the student such as ID, first name, last name,
+     *                       resident city, resident state, university ID, grade, major,
+     *                       email, and social media link. This parameter must not be null.
+     * @return an integer representing the number of rows affected by the update operation.
+     *         A value greater than 0 indicates that the operation was successful.
+     * @throws RuntimeException if the update operation fails due to a database error.
+     */
     public int updateStudent(StudentUpdateDto updatedStudent){
         MapSqlParameterSource params = new MapSqlParameterSource()
                 .addValue("id", updatedStudent.getId())

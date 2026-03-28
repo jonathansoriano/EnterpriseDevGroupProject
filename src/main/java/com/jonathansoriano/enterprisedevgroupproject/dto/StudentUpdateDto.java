@@ -9,6 +9,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
+//This DTO is used to return Student info when searching for a Particular student to update (PUT endpoint "/student/profile")
 public class StudentUpdateDto {
     private Long id;
     private String firstName;

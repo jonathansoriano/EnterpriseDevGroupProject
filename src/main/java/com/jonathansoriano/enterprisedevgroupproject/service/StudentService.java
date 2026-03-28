@@ -111,6 +111,14 @@ public class StudentService {
         return "Student Signup Successful!";
     }
 
+    /**
+     * Updates the details of an existing student and their associated user account.
+     *
+     * @param username The email of the student whose details need to be updated. This serves as a unique identifier.
+     * @param studentDetails The object containing the updated details to be applied to the student and user account.
+     * @return A confirmation message indicating the successful update of the account.
+     * @throws SearchNotFoundException If the student or user associated with the provided username cannot be found.
+     */
     @Transactional
     public String updateStudent(String username, EditStudentDetailsRequest studentDetails) {
         //Do a find in the Student table using the username (email) and assign returned Student from repo to Student object
@@ -137,6 +145,13 @@ public class StudentService {
         return "Account Updated Successfully!";
     }
 
+    /**
+     * Updates the provided StudentUpdateDto object with the values from the EditStudentDetailsRequest object.
+     *
+     * @param studentUpdateDto the StudentUpdateDto object to be updated
+     * @param studentDetails the EditStudentDetailsRequest object containing the new student details
+     * @return the updated StudentUpdateDto object
+     */
     private StudentUpdateDto updateStudentUpdateDto(StudentUpdateDto studentUpdateDto, EditStudentDetailsRequest studentDetails) {
         studentUpdateDto.setFirstName(studentDetails.getFirstName());
         studentUpdateDto.setLastName(studentDetails.getLastName());
@@ -147,10 +162,18 @@ public class StudentService {
         studentUpdateDto.setMajor(studentDetails.getMajor());
         studentUpdateDto.setSocialMediaLink(studentDetails.getSocialMediaLink());
 
-
         return studentUpdateDto;
     }
 
+    /**
+     * Updates the given UserDto with data from the EditStudentDetailsRequest.
+     * If the provided studentDetails object contains a non-blank password, it is encrypted
+     * and set in the UserDto.
+     *
+     * @param userDto the UserDto object to be updated
+     * @param studentDetails the EditStudentDetailsRequest containing updated student information
+     * @return the updated UserDto object
+     */
     private UserDto updateUserDto(UserDto userDto, EditStudentDetailsRequest studentDetails) {
         if(!studentDetails.getPassword().isBlank()) {
             userDto.setPassword(passwordEncoder.encode(studentDetails.getPassword()));

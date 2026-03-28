@@ -10,7 +10,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-//This class is used to display the Student account details of the currently authenticated user.
+//This class is used to display the Student account details of the currently authenticated user to the UI
 public class StudentAccountDetails {
     private String firstName;
     private String lastName;
