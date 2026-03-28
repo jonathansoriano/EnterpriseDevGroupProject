@@ -42,7 +42,10 @@ public class EditStudentDetailsRequest {
     )
     private String email;
 
-    @Size(min = 4, max = 20, message = "Password must be between 4 and 20 characters long")
+    @Pattern(
+            regexp = "^$|^.{4,20}$",
+            message = "Password must be between 4 and 20 characters long or left blank"
+    )
     private String password;
 
     private String socialMediaLink;

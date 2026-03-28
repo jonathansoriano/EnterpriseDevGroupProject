@@ -114,31 +114,48 @@ public class StudentService {
     @Transactional
     public String updateStudent(String username, EditStudentDetailsRequest studentDetails) {
         //Do a find in the Student table using the username (email) and assign returned Student from repo to Student object
-        StudentUpdateDto updatedStudent = studentRepository.findStudentByEmail(username).orElseThrow(()-> new SearchNotFoundException("Student Not found!"));
+        StudentUpdateDto outdatedStudent = studentRepository.findStudentByEmail(username).orElseThrow(()-> new SearchNotFoundException("Student Not found!"));
         //Do a find in the User table using the username (email) and assign returned User from repo to User Object
-        UserDto updatedUser = userRepository.findByEmail(username).orElseThrow(()-> new SearchNotFoundException("User not found!"));
+        UserDto outdatedUser = userRepository.findByEmail(username).orElseThrow(()-> new SearchNotFoundException("User not found!"));
+
         //Set the values of the Student object with the values in the EditStudentDetailsRequest object
-        updatedStudent.setFirstName(studentDetails.getFirstName());
-        updatedStudent.setLastName(studentDetails.getLastName());
-        updatedStudent.setEmail(studentDetails.getEmail());
-        updatedStudent.setResidentCity(studentDetails.getResidentCity());
-        updatedStudent.setResidentState(studentDetails.getResidentState());
-        updatedStudent.setUniversityId(studentDetails.getUniversityId());
-        updatedStudent.setGrade(studentDetails.getGrade());
-        updatedStudent.setMajor(studentDetails.getMajor());
-        updatedStudent.setEmail(studentDetails.getEmail());
-        updatedStudent.setSocialMediaLink(studentDetails.getSocialMediaLink());
+        //We won't allow student/user to change their email, since this is tied to their authentication
+        StudentUpdateDto updatedStudent = updateStudentUpdateDto(outdatedStudent, studentDetails);
+
+        UserDto updatedUser = updateUserDto(outdatedUser, studentDetails);
+
         //Set the values of the User object with the values in the EditStudentDetailsRequest object
-        updatedUser.setEmail(studentDetails.getEmail());
         //Password check to make sure we aren't setting the password to an empty string
         if (!studentDetails.getPassword().isBlank()) {
-            updatedUser.setPassword(passwordEncoder.encode(studentDetails.getPassword()));
+            outdatedUser.setPassword(passwordEncoder.encode(studentDetails.getPassword()));
         }
+
         //Send Updated Student Object to the Repository layer and wait to see if the update was successful
         Integer studentResult = studentRepository.updateStudent(updatedStudent);
         Integer userResult = userRepository.updateUser(updatedUser);
 
         return "Account Updated Successfully!";
+    }
+
+    private StudentUpdateDto updateStudentUpdateDto(StudentUpdateDto studentUpdateDto, EditStudentDetailsRequest studentDetails) {
+        studentUpdateDto.setFirstName(studentDetails.getFirstName());
+        studentUpdateDto.setLastName(studentDetails.getLastName());
+        studentUpdateDto.setResidentCity(studentDetails.getResidentCity());
+        studentUpdateDto.setResidentState(studentDetails.getResidentState());
+        studentUpdateDto.setUniversityId(studentDetails.getUniversityId());
+        studentUpdateDto.setGrade(studentDetails.getGrade());
+        studentUpdateDto.setMajor(studentDetails.getMajor());
+        studentUpdateDto.setSocialMediaLink(studentDetails.getSocialMediaLink());
+
+
+        return studentUpdateDto;
+    }
+
+    private UserDto updateUserDto(UserDto userDto, EditStudentDetailsRequest studentDetails) {
+        if(!studentDetails.getPassword().isBlank()) {
+            userDto.setPassword(passwordEncoder.encode(studentDetails.getPassword()));
+        }
+        return userDto;
     }
 
     private String hashPlainTextPassword(String password) {
