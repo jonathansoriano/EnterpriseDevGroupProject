@@ -8,6 +8,7 @@ import com.jonathansoriano.enterprisedevgroupproject.dto.StudentUpdateDto;
 import com.jonathansoriano.enterprisedevgroupproject.util.SqlUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.BeanPropertyRowMapper;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
@@ -130,13 +131,17 @@ public class StudentRepository {
                 .append(SqlUtils.andAddCondition(AND_EMAIL, email));
 
         try {
+            //Should the query be successful
             StudentAccountDetailsDto student = jdbcTemplate.queryForObject(
                     sql.toString(),
                     params,
                     new BeanPropertyRowMapper<>(StudentAccountDetailsDto.class, true)
             );
+            //we will return the StudentUpdateDto object back to the service
             return Optional.ofNullable(student);
-        } catch (Exception ex) {
+        } catch (EmptyResultDataAccessException ex) {
+            //Otherwise, this exception will be thrown because it couldn't find what we were looking for
+            //and we need to return an empty Optional
             return Optional.empty();
         }
     }
@@ -149,14 +154,16 @@ public class StudentRepository {
                 .append(SqlUtils.andAddCondition(AND_EMAIL, email));
 
         try{
+            //Successful Student Query
             StudentUpdateDto student = jdbcTemplate.queryForObject(
                     sql.toString(),
                     params,
                     new BeanPropertyRowMapper<>(StudentUpdateDto.class, true)
             );
+            //we will return the StudentUpdateDto object back to the service
             return Optional.ofNullable(student);
-        }catch (Exception ex){
-            log.error(ex.getMessage(), ex);
+        }catch (EmptyResultDataAccessException ex){
+            //Couldn't find our student from our query, so this exception is thrown
             return Optional.empty();
         }
     }

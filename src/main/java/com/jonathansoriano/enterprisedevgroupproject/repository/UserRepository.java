@@ -2,6 +2,7 @@ package com.jonathansoriano.enterprisedevgroupproject.repository;
 
 import com.jonathansoriano.enterprisedevgroupproject.domain.UserRequest;
 import com.jonathansoriano.enterprisedevgroupproject.dto.UserDto;
+import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.BeanPropertyRowMapper;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
@@ -47,7 +48,7 @@ public class UserRepository {
                     new BeanPropertyRowMapper<>(UserDto.class, true)
             );
             return Optional.ofNullable(user);
-        } catch (Exception ex) {
+        } catch (EmptyResultDataAccessException ex) {
             return Optional.empty();
         }
     }

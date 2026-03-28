@@ -79,6 +79,13 @@ public class StudentController {
         return ResponseEntity.ok(studentAccountDetails);
     }
 
+    /**
+     * Updates the profile information of the currently authenticated student.
+     *
+     * @param userDetails the authenticated user's details, containing information about the current user
+     * @param studentDetails the {@code EditStudentDetailsRequest} object containing the updated student details
+     * @return a {@code ResponseEntity} containing a success message upon successful profile update
+     */
     @PutMapping("/profile")
     public ResponseEntity<String> updateStudent(@AuthenticationPrincipal CustomerUserDetails userDetails, @Valid @RequestBody EditStudentDetailsRequest studentDetails) {
         String successfulAccountUpdate = service.updateStudent(userDetails.getUsername(), studentDetails);
