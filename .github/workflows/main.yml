@@ -140,7 +140,7 @@ jobs:
           scanners: vuln
 
   # ────────────────────────────────────────────────
-  # Job 4: Publish – Compose file, Artifact & Release
+  # Job 4: Publish – Full self-contained deployment bundle
   # ────────────────────────────────────────────────
   publish:
     runs-on: ubuntu-latest
@@ -148,36 +148,280 @@ jobs:
     if: github.event_name == 'push' && github.ref == 'refs/heads/main'
 
     permissions:
-      contents: write   # required to create a GitHub Release
+      contents: write
 
     steps:
       - name: Checkout source
         uses: actions/checkout@v6
 
+      # ── 1. docker-compose.prod.yml ──────────────────────────────────────────
       - name: Generate docker-compose.prod.yml
         run: |
           IMAGE="${{ env.REGISTRY }}/${{ env.IMAGE_NAME_LOWER }}:${{ needs.docker-build-scan-push.outputs.image-tag }}"
-          cat <<EOF > docker-compose.prod.yml
-          version: "3.8"
+          cat > docker-compose.prod.yml <<EOF
           services:
+
+            db:
+              image: postgres:16-alpine
+              container_name: enterprise-db
+              environment:
+                POSTGRES_USER: \${DATABASE_USERNAME}
+                POSTGRES_PASSWORD: \${DATABASE_PASSWORD}
+                POSTGRES_DB: \${PROD_DATABASE_NAME}
+              volumes:
+                - pgdata:/var/lib/postgresql/data
+              healthcheck:
+                test: ["CMD-SHELL", "pg_isready -U \${DATABASE_USERNAME} -d \${PROD_DATABASE_NAME}"]
+                interval: 10s
+                timeout: 5s
+                retries: 5
+              restart: unless-stopped
+              networks:
+                - backend
+
             app:
               image: ${IMAGE}
+              container_name: enterprisedevgroupproject
+              pull_policy: always
               ports:
                 - "8080:8080"
+              environment:
+                JAVA_OPTS: \${JAVA_OPTS}
+                SPRING_PROFILES_ACTIVE: \${SPRING_PROFILES_ACTIVE}
+                DATABASE_HOST: db
+                DATABASE_PORT: "5432"
+                DATABASE_USERNAME: \${DATABASE_USERNAME}
+                DATABASE_PASSWORD: \${DATABASE_PASSWORD}
+                PROD_DATABASE_NAME: \${PROD_DATABASE_NAME}
+                MANAGEMENT_ENDPOINTS_WEB_EXPOSURE_INCLUDE: health,info,prometheus,metrics
+                MANAGEMENT_ENDPOINT_PROMETHEUS_ENABLED: "true"
+              depends_on:
+                db:
+                  condition: service_healthy
+              restart: unless-stopped
+              healthcheck:
+                test: ["CMD", "wget", "-qO-", "http://localhost:8080/actuator/health"]
+                interval: 30s
+                timeout: 5s
+                retries: 3
+                start_period: 40s
+              networks:
+                - backend
+                - monitoring
+
+            prometheus:
+              image: prom/prometheus:v3.2.1
+              container_name: enterprise-prometheus
+              ports:
+                - "9090:9090"
+              volumes:
+                - ./monitoring/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+                - ./monitoring/alerts.yml:/etc/prometheus/alerts.yml:ro
+                - prometheus_data:/prometheus
+              command:
+                - '--config.file=/etc/prometheus/prometheus.yml'
+                - '--storage.tsdb.path=/prometheus'
+                - '--web.enable-lifecycle'
+              depends_on:
+                app:
+                  condition: service_healthy
+              restart: unless-stopped
+              networks:
+                - monitoring
+
+            grafana:
+              image: grafana/grafana:11.5.2
+              container_name: enterprise-grafana
+              ports:
+                - "3000:3000"
+              environment:
+                GF_SECURITY_ADMIN_USER: \${GF_SECURITY_ADMIN_USER}
+                GF_SECURITY_ADMIN_PASSWORD: \${GF_SECURITY_ADMIN_PASSWORD}
+                GF_USERS_ALLOW_SIGN_UP: "false"
+              volumes:
+                - grafana_data:/var/lib/grafana
+                - ./monitoring/grafana/provisioning:/etc/grafana/provisioning:ro
+              depends_on:
+                - prometheus
+              restart: unless-stopped
+              networks:
+                - monitoring
+
+          volumes:
+            pgdata:
+            prometheus_data:
+            grafana_data:
+
+          networks:
+            backend:
+              driver: bridge
+            monitoring:
+              driver: bridge
           EOF
 
-      - name: Upload docker-compose file as artifact
+      # ── 2. monitoring/prometheus.yml ────────────────────────────────────────
+      - name: Generate prometheus.yml
+        run: |
+          mkdir -p monitoring
+          cat > monitoring/prometheus.yml <<'EOF'
+          global:
+            scrape_interval: 15s
+            evaluation_interval: 15s
+
+          rule_files:
+            - "alerts.yml"
+
+          scrape_configs:
+            - job_name: 'student-directory-app'
+              metrics_path: '/actuator/prometheus'
+              static_configs:
+                - targets: ['app:8080']
+              relabel_configs:
+                - source_labels: [__address__]
+                  target_label: instance
+                  replacement: 'student-directory'
+          EOF
+
+      # ── 3. monitoring/alerts.yml ──────────────────────────────────────────
+      - name: Generate alerts.yml
+        run: |
+          cat > monitoring/alerts.yml <<'EOF'
+          groups:
+            - name: spring-boot-alerts
+              rules:
+                - alert: AppDown
+                  expr: up{job="student-directory-app"} == 0
+                  for: 1m
+                  labels:
+                    severity: critical
+                  annotations:
+                    summary: "Student Directory app is DOWN"
+                    description: "The app has been unreachable for more than 1 minute."
+
+                - alert: HighMemoryUsage
+                  expr: jvm_memory_used_bytes{area="heap"} / jvm_memory_max_bytes{area="heap"} > 0.85
+                  for: 2m
+                  labels:
+                    severity: warning
+                  annotations:
+                    summary: "High JVM heap usage"
+                    description: "Heap usage is above 85% for 2 minutes."
+
+                - alert: HighErrorRate
+                  expr: rate(http_server_requests_seconds_count{status=~"5.."}[5m]) > 0.1
+                  for: 2m
+                  labels:
+                    severity: warning
+                  annotations:
+                    summary: "High HTTP 5xx error rate"
+                    description: "More than 10% of requests are returning 5xx errors."
+
+                - alert: SlowResponseTime
+                  expr: http_server_requests_seconds{quantile="0.95"} > 2
+                  for: 5m
+                  labels:
+                    severity: warning
+                  annotations:
+                    summary: "Slow response times (p95 > 2s)"
+                    description: "95th percentile response time exceeded 2 seconds."
+          EOF
+
+      # ── 4. Grafana datasource provisioning ─────────────────────────────────
+      - name: Generate Grafana datasource
+        run: |
+          mkdir -p monitoring/grafana/provisioning/datasources
+          cat > monitoring/grafana/provisioning/datasources/prometheus.yml <<'EOF'
+          apiVersion: 1
+          datasources:
+            - name: Prometheus
+              type: prometheus
+              url: http://prometheus:9090
+              isDefault: true
+              access: proxy
+              editable: false
+              jsonData:
+                timeInterval: "15s"
+          EOF
+
+      # ── 5. Grafana dashboard provisioning config ──────────────────────────
+      - name: Generate Grafana dashboard provisioner
+        run: |
+          mkdir -p monitoring/grafana/provisioning/dashboards
+          cat > monitoring/grafana/provisioning/dashboards/dashboards.yml <<'EOF'
+          apiVersion: 1
+          providers:
+            - name: 'Student Directory Dashboards'
+              orgId: 1
+              type: file
+              disableDeletion: false
+              updateIntervalSeconds: 30
+              options:
+                path: /etc/grafana/provisioning/dashboards
+          EOF
+
+      # ── 6. Grafana Spring Boot JVM dashboard (ID 19004) ──────────────────
+      - name: Download Grafana Spring Boot dashboard
+        run: |
+          curl -sL "https://grafana.com/api/dashboards/19004/revisions/latest/download" \
+            -o monitoring/grafana/provisioning/dashboards/spring-boot-jvm.json
+          echo "Dashboard downloaded: $(wc -c < monitoring/grafana/provisioning/dashboards/spring-boot-jvm.json) bytes"
+
+      # ── 7. .env.example ───────────────────────────────────────────────────
+      - name: Generate .env.example
+        run: |
+          cat > .env.example <<'EOF'
+          # ── Database ──────────────────────────────
+          DATABASE_USERNAME=postgres
+          DATABASE_PASSWORD=changeme
+          PROD_DATABASE_NAME=studentdirectory
+
+          # ── Spring Boot ───────────────────────────
+          SPRING_PROFILES_ACTIVE=prod
+          JAVA_OPTS=-Xms256m -Xmx512m
+
+          # ── Grafana ───────────────────────────────
+          GF_SECURITY_ADMIN_USER=admin
+          GF_SECURITY_ADMIN_PASSWORD=changeme
+          EOF
+
+      # ── 8. Bundle everything into a zip ──────────────────────────────────
+      - name: Bundle deployment package
+        run: |
+          zip -r deployment-bundle.zip \
+            docker-compose.prod.yml \
+            monitoring/ \
+            .env.example
+          echo "Bundle size: $(du -sh deployment-bundle.zip | cut -f1)"
+
+      # ── 9. Upload artifact ────────────────────────────────────────────────
+      - name: Upload deployment bundle as artifact
         uses: actions/upload-artifact@v7
         with:
-          name: docker-compose-prod
-          path: docker-compose.prod.yml
+          name: deployment-bundle
+          path: deployment-bundle.zip
 
+      # ── 10. GitHub Release ────────────────────────────────────────────────
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v2
         with:
           tag_name: sha-${{ needs.docker-build-scan-push.outputs.image-tag }}
           name: "Release sha-${{ needs.docker-build-scan-push.outputs.image-tag }}"
           body: |
-            Docker image: `${{ env.REGISTRY }}/${{ env.IMAGE_NAME_LOWER }}:${{ needs.docker-build-scan-push.outputs.image-tag }}`
-            Digest: `${{ needs.docker-build-scan-push.outputs.image-digest }}`
-          files: docker-compose.prod.yml
+            ## Docker Image
+            `${{ env.REGISTRY }}/${{ env.IMAGE_NAME_LOWER }}:${{ needs.docker-build-scan-push.outputs.image-tag }}`
+            **Digest:** `${{ needs.docker-build-scan-push.outputs.image-digest }}`
+
+            ## Deploy Instructions
+            1. Download and unzip `deployment-bundle.zip`
+            2. Copy `.env.example` to `.env` and fill in your secrets
+            3. Run: `docker compose -f docker-compose.prod.yml up -d`
+
+            ## Services
+            - **App:** http://localhost:8080
+            - **Prometheus:** http://localhost:9090
+            - **Grafana:** http://localhost:3000
+
+            > Default Grafana login: set via `GF_SECURITY_ADMIN_USER` / `GF_SECURITY_ADMIN_PASSWORD` in your `.env`
+          files: |
+            deployment-bundle.zip
+            docker-compose.prod.yml
