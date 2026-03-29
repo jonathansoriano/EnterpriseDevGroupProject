@@ -133,8 +133,18 @@ public class StudentService {
         UserDto updatedUser = updateUserDto(outdatedUser, studentDetails);
 
         //Send Updated Student Object to the Repository layer and wait to see if the update was successful
-        Integer studentResult = studentRepository.updateStudent(updatedStudent);
-        Integer userResult = userRepository.updateUser(updatedUser);
+        int studentResult = studentRepository.updateStudent(updatedStudent);
+        int userResult = userRepository.updateUser(updatedUser);
+
+        if (studentResult == 0 && userResult == 0){
+            //Example of WHERE clause doesn't match the existing records: WHERE ID = 1000 (ID 1000 doesn't exist). ID's that haven't created yet in DB
+            throw new SearchNotFoundException("Student and User Update failed: No student or user found with the given ID.");
+        } else if (studentResult == 0) {
+            throw new SearchNotFoundException("Student Update failed: No student found with the given ID.");
+        }
+        else if (userResult == 0){
+            throw new SearchNotFoundException("User Update failed: No user found with the given ID.");
+        }
 
         return "Account Updated Successfully!";
     }

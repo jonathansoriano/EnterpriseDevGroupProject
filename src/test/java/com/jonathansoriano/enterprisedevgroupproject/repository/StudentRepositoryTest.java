@@ -421,4 +421,30 @@ class StudentRepositoryTest {
 
     }
 
+    @Test
+    void updateStudent_NonExistingId_Unsuccessful(){
+        //Arrange (Student ID 1000 doesn't exist in the database to when trying to update the Student
+        //WHERE ID = 1000, it will execute the query but no rows are affected.
+        StudentUpdateDto invalidStudent = StudentUpdateDto.builder()
+                .id(1000L)
+                .firstName("Sara")
+                .lastName("Johnson")
+                .residentCity("Mason")
+                .residentState("OH")
+                .universityId(1)
+                .grade("Senior")
+                .major("IT")
+                .email("sarah.johnson@mail.uc.edu")
+                .socialMediaLink("https://linkedin.com/in/sarahjohnson")
+                .build();
+
+        int expectedStudentResult = 0;
+
+        //Act
+        int actualStudentResult = studentRepository.updateStudent(invalidStudent);
+
+        //Assert
+        assertEquals(expectedStudentResult, actualStudentResult);
+    }
+
 }

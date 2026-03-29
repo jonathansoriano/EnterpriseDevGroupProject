@@ -103,10 +103,8 @@ public class UserRepository {
 
         StringBuilder sql = new StringBuilder(UPDATE_APP_USER);
 
-        try {
-            return jdbcTemplate.update(sql.toString(), params);
-        }catch (Exception ex) {
-            throw new RuntimeException("User insertion failed due to a database error", ex);
-        }
+
+        return jdbcTemplate.update(sql.toString(), params);
+
     }
 }
