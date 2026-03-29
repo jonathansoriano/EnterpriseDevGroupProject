@@ -263,7 +263,7 @@ public class StudentService {
                 .lastName(studentDto.getLastName())
                 .residentCity(studentDto.getResidentCity())
                 .residentState(studentDto.getResidentState())
-                .universityName(studentDto.getUniversityName())// should we return the ID or name of university? how will it handled in front end?
+                .universityName(studentDto.getUniversityName())
                 .grade(studentDto.getGrade())
                 .major(studentDto.getMajor())
                 .email(email)
