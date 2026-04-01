@@ -8,6 +8,7 @@ import com.jonathansoriano.enterprisedevgroupproject.dto.StudentAccountDetailsDt
 import com.jonathansoriano.enterprisedevgroupproject.dto.StudentDto;
 import com.jonathansoriano.enterprisedevgroupproject.dto.StudentUpdateDto;
 import com.jonathansoriano.enterprisedevgroupproject.dto.UserDto;
+import com.jonathansoriano.enterprisedevgroupproject.exception.EmailAlreadyExistsException;
 import com.jonathansoriano.enterprisedevgroupproject.exception.SearchNotFoundException;
 import com.jonathansoriano.enterprisedevgroupproject.model.Student;
 import com.jonathansoriano.enterprisedevgroupproject.model.StudentAccountDetails;
@@ -95,6 +96,13 @@ public class StudentService {
      */
     @Transactional
     public String insertNewStudent(StudentSignupRequest student) {
+        UserDto userDto = userRepository.findByEmail(student.getEmail()).orElse(null);
+
+        if  (userDto != null) {
+            throw new EmailAlreadyExistsException("An existing account already exists with the email: " + student.getEmail());
+        }
+
+
         // Step 1: Hash the plain-text password before storing it in the app_user table
         String hashedPassword = hashPlainTextPassword(student.getPassword());
 
@@ -135,16 +143,6 @@ public class StudentService {
         //Send Updated Student Object to the Repository layer and wait to see if the update was successful
         int studentResult = studentRepository.updateStudent(updatedStudent);
         int userResult = userRepository.updateUser(updatedUser);
-
-        if (studentResult == 0 && userResult == 0){
-            //Example of WHERE clause doesn't match the existing records: WHERE ID = 1000 (ID 1000 doesn't exist). ID's that haven't created yet in DB
-            throw new SearchNotFoundException("Student and User Update failed: No student or user found with the given ID.");
-        } else if (studentResult == 0) {
-            throw new SearchNotFoundException("Student Update failed: No student found with the given ID.");
-        }
-        else if (userResult == 0){
-            throw new SearchNotFoundException("User Update failed: No user found with the given ID.");
-        }
 
         return "Account Updated Successfully!";
     }

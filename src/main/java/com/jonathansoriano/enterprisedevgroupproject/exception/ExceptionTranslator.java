@@ -40,6 +40,15 @@ public class ExceptionTranslator {
         return new ResponseEntity<>(wrapper, HttpStatus.NOT_FOUND);
     }
 
+    @ExceptionHandler
+    public ResponseEntity<ExceptionWrapper> handleEmailAlreadyExistsException(EmailAlreadyExistsException ex, HttpServletRequest request) {
+        log.warn("Email already exists at {}: {}", request.getRequestURI(), ex.getMessage());
+
+        ExceptionWrapper wrapper = new ExceptionWrapper(HttpStatus.CONFLICT.value(), ex.getMessage(), request.getRequestURI());
+
+        return new ResponseEntity<>(wrapper, HttpStatus.CONFLICT);
+    }
+
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<ExceptionWrapper> handleMethodArgumentNotValidException(MethodArgumentNotValidException ex, HttpServletRequest request) {
 

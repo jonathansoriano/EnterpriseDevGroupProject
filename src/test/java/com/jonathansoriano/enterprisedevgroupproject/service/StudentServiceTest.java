@@ -7,6 +7,7 @@ import com.jonathansoriano.enterprisedevgroupproject.dto.StudentAccountDetailsDt
 import com.jonathansoriano.enterprisedevgroupproject.dto.StudentDto;
 import com.jonathansoriano.enterprisedevgroupproject.dto.StudentUpdateDto;
 import com.jonathansoriano.enterprisedevgroupproject.dto.UserDto;
+import com.jonathansoriano.enterprisedevgroupproject.exception.EmailAlreadyExistsException;
 import com.jonathansoriano.enterprisedevgroupproject.exception.SearchNotFoundException;
 import com.jonathansoriano.enterprisedevgroupproject.model.Student;
 import com.jonathansoriano.enterprisedevgroupproject.model.StudentAccountDetails;
@@ -126,11 +127,14 @@ class StudentServiceTest {
                 .socialMediaLink("linkedin.com/sorianjn")
                 .build();
 
+        UserDto userDto = null;
+
         // Expected Responses from the StudentRepository and UserRepository
         int expectedResponseFromStudentRepository = 1;
         int expectedResponseFromUserRepository = 1;
 
         // Mocking up the expected behavior for when the repository.insertNewStudent(...) gets called and when the repository.insertNewUser(...) gets called
+        when(userRepository.findByEmail(studentSignupRequest.getEmail())).thenReturn(Optional.ofNullable(userDto));
         when(studentRepository.insertNewStudent(studentSignupRequest)).thenReturn(expectedResponseFromStudentRepository);
         when(userRepository.insertNewUser(any())).thenReturn(expectedResponseFromUserRepository);
 
@@ -138,6 +142,35 @@ class StudentServiceTest {
         String actualReturnValueFromInsertNewStudent = service.insertNewStudent(studentSignupRequest);
         //Assert
         assertEquals("Student Signup Successful!", actualReturnValueFromInsertNewStudent);
+    }
+
+    @Test
+    void insertNewStudent_returnsException(){
+        //Arrange
+        StudentSignupRequest studentSignupRequest = StudentSignupRequest.builder()
+                .firstName("John")
+                .lastName("Doe")
+                .residentCity("Cincinnati")
+                .residentState("OH")
+                .universityId(1)
+                .grade("Senior")
+                .major("Information Technology")
+                .email("duplicate@mail.uc.edu")
+                .password("passw0rd!")
+                .socialMediaLink("linkedin.com/sorianjn")
+                .build();
+
+        UserDto userDto = UserDto.builder()
+                .id(1L)
+                .role("USER")
+                .email("duplicate@mail.uc.edu")
+                .password("passw0rd!")
+                .build();
+
+        when(userRepository.findByEmail(studentSignupRequest.getEmail())).thenReturn(Optional.of(userDto));
+
+        //Act & Assert
+        assertThrows(EmailAlreadyExistsException.class, ()-> service.insertNewStudent(studentSignupRequest));
     }
 
     @Test
