@@ -1,10 +1,16 @@
 package com.jonathansoriano.enterprisedevgroupproject.service;
 
+import com.jonathansoriano.enterprisedevgroupproject.domain.EditStudentDetailsRequest;
 import com.jonathansoriano.enterprisedevgroupproject.domain.StudentRequest;
 import com.jonathansoriano.enterprisedevgroupproject.domain.StudentSignupRequest;
+import com.jonathansoriano.enterprisedevgroupproject.dto.StudentAccountDetailsDto;
 import com.jonathansoriano.enterprisedevgroupproject.dto.StudentDto;
+import com.jonathansoriano.enterprisedevgroupproject.dto.StudentUpdateDto;
+import com.jonathansoriano.enterprisedevgroupproject.dto.UserDto;
+import com.jonathansoriano.enterprisedevgroupproject.exception.EmailAlreadyExistsException;
 import com.jonathansoriano.enterprisedevgroupproject.exception.SearchNotFoundException;
 import com.jonathansoriano.enterprisedevgroupproject.model.Student;
+import com.jonathansoriano.enterprisedevgroupproject.model.StudentAccountDetails;
 import com.jonathansoriano.enterprisedevgroupproject.repository.StudentRepository;
 import com.jonathansoriano.enterprisedevgroupproject.repository.UserRepository;
 import org.junit.jupiter.api.Test;
@@ -15,6 +21,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
@@ -120,11 +127,14 @@ class StudentServiceTest {
                 .socialMediaLink("linkedin.com/sorianjn")
                 .build();
 
+        UserDto userDto = null;
+
         // Expected Responses from the StudentRepository and UserRepository
         int expectedResponseFromStudentRepository = 1;
         int expectedResponseFromUserRepository = 1;
 
         // Mocking up the expected behavior for when the repository.insertNewStudent(...) gets called and when the repository.insertNewUser(...) gets called
+        when(userRepository.findByEmail(studentSignupRequest.getEmail())).thenReturn(Optional.ofNullable(userDto));
         when(studentRepository.insertNewStudent(studentSignupRequest)).thenReturn(expectedResponseFromStudentRepository);
         when(userRepository.insertNewUser(any())).thenReturn(expectedResponseFromUserRepository);
 
@@ -132,6 +142,201 @@ class StudentServiceTest {
         String actualReturnValueFromInsertNewStudent = service.insertNewStudent(studentSignupRequest);
         //Assert
         assertEquals("Student Signup Successful!", actualReturnValueFromInsertNewStudent);
+    }
+
+    @Test
+    void insertNewStudent_returnsException(){
+        //Arrange
+        StudentSignupRequest studentSignupRequest = StudentSignupRequest.builder()
+                .firstName("John")
+                .lastName("Doe")
+                .residentCity("Cincinnati")
+                .residentState("OH")
+                .universityId(1)
+                .grade("Senior")
+                .major("Information Technology")
+                .email("duplicate@mail.uc.edu")
+                .password("passw0rd!")
+                .socialMediaLink("linkedin.com/sorianjn")
+                .build();
+
+        UserDto userDto = UserDto.builder()
+                .id(1L)
+                .role("USER")
+                .email("duplicate@mail.uc.edu")
+                .password("passw0rd!")
+                .build();
+
+        when(userRepository.findByEmail(studentSignupRequest.getEmail())).thenReturn(Optional.of(userDto));
+
+        //Act & Assert
+        assertThrows(EmailAlreadyExistsException.class, ()-> service.insertNewStudent(studentSignupRequest));
+    }
+
+    @Test
+    void findByEmail_returnsStudentAccountDetails() {
+        //Arrange
+        String existingUserName = "sarah.johnson@mail.uc.edu";
+
+        StudentAccountDetailsDto studentAccountDetailsDto = StudentAccountDetailsDto.builder()
+                .id(1L)
+                .firstName("Sarah")
+                .lastName("Johnson")
+                .residentCity("Cincinnati")
+                .residentState("OH")
+                .universityName("University of Cincinnati")
+                .grade("Junior")
+                .major("Computer Science")
+                .email("sarah.johnson@mail.uc.edu")
+                .socialMediaLink("https://linkedin.com/in/sarahjohnson")
+                .build();
+
+        StudentAccountDetails expectedStudentAccountDetailsDto = StudentAccountDetails.builder()
+                .firstName("Sarah")
+                .lastName("Johnson")
+                .residentCity("Cincinnati")
+                .residentState("OH")
+                .universityName("University of Cincinnati")
+                .grade("Junior")
+                .major("Computer Science")
+                .email("sarah.johnson@mail.uc.edu")
+                .socialMediaLink("https://linkedin.com/in/sarahjohnson")
+                .build();
+
+        when(studentRepository.findByEmail(existingUserName)).thenReturn(Optional.of(studentAccountDetailsDto));
+        //Act
+        StudentAccountDetails actualStudentAccountDetails = service.findByEmail(existingUserName);
+        //Assert
+        assertEquals(expectedStudentAccountDetailsDto, actualStudentAccountDetails);
+
+    }
+
+    @Test
+    void findByEmail_notFound(){
+        //Arrange
+        String nonExistingUserName = "towelie@mail.edu";
+
+        when(studentRepository.findByEmail(nonExistingUserName)).thenReturn(Optional.empty());
+
+        //Act & Assert
+        assertThrows(SearchNotFoundException.class, ()-> service.findByEmail(nonExistingUserName));
+    }
+
+    @Test
+    void updateStudent_returnsSuccessfulInsertionMessageWithMultipleNewFields(){
+        //Arrange (method takes in these two arguments passed in from Controller: String username, EditStudentDetailsRequest studentDetails.
+        String validUserName = "sarah.johnson@mail.uc.edu";
+
+        EditStudentDetailsRequest editStudentDetailsRequest = EditStudentDetailsRequest.builder()
+                .firstName("Sara")
+                .lastName("Johnsen")
+                .residentCity("Mason")
+                .residentState("OH")
+                .universityId(1)
+                .grade("Senior")
+                .major("IT")
+                .email("sarah.johnson@mail.uc.edu") //email doesn't get updated by Users
+                .password("password")
+                .socialMediaLink("https://linkedin.com/in/sarajohnsen")
+                .build();
+
+        StudentUpdateDto outdatedStudentUpdateDto = StudentUpdateDto.builder()
+                .id(1L)
+                .firstName("Sarah")
+                .lastName("Johnson")
+                .residentCity("Cincinnati")
+                .residentState("OH")
+                .universityId(1)
+                .grade("Junior")
+                .major("Computer Science")
+                .email("sarah.johnson@mail.uc.edu")
+                .socialMediaLink("https://linkedin.com/in/sarahjohnson")
+                .build();
+
+        UserDto outdatedUserDto = UserDto.builder()
+                .id(1L)
+                .role("USER")
+                .email("sarah.johnson@mail.uc.edu")
+                .password("$2a$10$cT37ge3YHk2NxIjDvUpns.CucoBA8cQ.DzJXoqcIVJ6nQUZpB9SVa")
+                .build();
+
+        when(studentRepository.findStudentByEmail(validUserName)).thenReturn(Optional.of(outdatedStudentUpdateDto));
+        when(userRepository.findByEmail(validUserName)).thenReturn(Optional.of(outdatedUserDto));
+
+        //any() is pointing to the updatedStudent and updatedUser, once we set the new fields to both dtos.
+        when(studentRepository.updateStudent(any())).thenReturn(1);
+        when(userRepository.updateUser(any())).thenReturn(1);
+
+        String expectedInsertionMessage = "Account Updated Successfully!";
+        //Act
+        String actualInsertionMessage = service.updateStudent(validUserName, editStudentDetailsRequest);
+        //Assert
+        assertEquals(expectedInsertionMessage, actualInsertionMessage);
+    }
+
+    @Test
+    void updateStudent_returnsSearchNotFoundExceptionForStudent(){
+        //Arrange (method takes in these two arguments passed in from Controller: String username, EditStudentDetailsRequest studentDetails.
+        String nonExistingUserName = "johndoe@mail.edu";
+
+        EditStudentDetailsRequest editStudentDetailsRequest = EditStudentDetailsRequest.builder()
+                .firstName("John")
+                .lastName("Doe")
+                .residentCity("Mason")
+                .residentState("OH")
+                .universityId(1)
+                .grade("Senior")
+                .major("IT")
+                .email("johndoe@mail.edu") //email doesn't get updated by Users
+                .password("password")
+                .socialMediaLink("https://linkedin.com/in/jdoe")
+                .build();
+
+        when(studentRepository.findStudentByEmail(nonExistingUserName)).thenReturn(Optional.empty());
+        //when(userRepository.findByEmail(nonExistingUserName)).thenReturn(Optional.empty()); Probably wont get hit if the student table doesn't find student by email first.
+
+
+        //Act & Assert
+        assertThrows(SearchNotFoundException.class, () -> service.updateStudent(nonExistingUserName, editStudentDetailsRequest));
+    }
+
+    @Test
+    void updateStudent_returnsSearchNotFoundExceptionForUser(){
+        //Arrange (method takes in these two arguments passed in from Controller: String username, EditStudentDetailsRequest studentDetails.
+        String nonExistingUserNameForUserTable = "johndoe@mail.edu";
+
+        EditStudentDetailsRequest editStudentDetailsRequest = EditStudentDetailsRequest.builder()
+                .firstName("John")
+                .lastName("Doe")
+                .residentCity("Mason")
+                .residentState("OH")
+                .universityId(1)
+                .grade("Senior")
+                .major("IT")
+                .email("johndoe@mail.edu") //email doesn't get updated by Users
+                .password("password")
+                .socialMediaLink("https://linkedin.com/in/jdoe")
+                .build();
+
+        StudentUpdateDto outdatedStudentDto = StudentUpdateDto.builder()
+                .id(100L)
+                .firstName("John")
+                .lastName("Doe")
+                .residentCity("Mason")
+                .residentState("OH")
+                .universityId(1)
+                .grade("Junior")
+                .major("Computer Science")
+                .email("johndoe@mail.edu")
+                .socialMediaLink(null)
+                .build();
+
+        when(studentRepository.findStudentByEmail(nonExistingUserNameForUserTable)).thenReturn(Optional.of(outdatedStudentDto));
+        when(userRepository.findByEmail(nonExistingUserNameForUserTable)).thenReturn(Optional.empty());
+
+
+        //Act & Assert
+        assertThrows(SearchNotFoundException.class, () -> service.updateStudent(nonExistingUserNameForUserTable, editStudentDetailsRequest));
     }
 
 }

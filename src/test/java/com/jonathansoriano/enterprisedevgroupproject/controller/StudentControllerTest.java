@@ -125,7 +125,7 @@ class StudentControllerTest {
                                           "socialMediaLink": "Test"
                                         }
                                     """;
-        // No need to mock up the service and exception thrown (Mockito.when... then) since validation exception is thrown before we hit the service call
+        // No need to mock up the service and exception thrown (Mockito.when... then) since validation exception (MethodArgumentNotValidException) is thrown before we hit the service call
 
         //Act and Assert (using andExpect() method)
         mockMvc.perform(post("/student")

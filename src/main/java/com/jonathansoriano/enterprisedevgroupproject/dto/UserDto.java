@@ -9,8 +9,10 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
+//This DTO is used to return User info when searching for a particular user
+// (Ex. GET endpoint "/student/profile", PUT endpoint "/student/profile")
 public class UserDto {
-    private Integer id;
+    private Long id;
     private String role;
     private String email;
     private String password;

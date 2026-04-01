@@ -1,13 +1,20 @@
 package com.jonathansoriano.enterprisedevgroupproject.service;
 
+import com.jonathansoriano.enterprisedevgroupproject.domain.EditStudentDetailsRequest;
 import com.jonathansoriano.enterprisedevgroupproject.domain.StudentRequest;
 import com.jonathansoriano.enterprisedevgroupproject.domain.StudentSignupRequest;
 import com.jonathansoriano.enterprisedevgroupproject.domain.UserRequest;
+import com.jonathansoriano.enterprisedevgroupproject.dto.StudentAccountDetailsDto;
 import com.jonathansoriano.enterprisedevgroupproject.dto.StudentDto;
+import com.jonathansoriano.enterprisedevgroupproject.dto.StudentUpdateDto;
+import com.jonathansoriano.enterprisedevgroupproject.dto.UserDto;
+import com.jonathansoriano.enterprisedevgroupproject.exception.EmailAlreadyExistsException;
 import com.jonathansoriano.enterprisedevgroupproject.exception.SearchNotFoundException;
 import com.jonathansoriano.enterprisedevgroupproject.model.Student;
+import com.jonathansoriano.enterprisedevgroupproject.model.StudentAccountDetails;
 import com.jonathansoriano.enterprisedevgroupproject.repository.StudentRepository;
 import com.jonathansoriano.enterprisedevgroupproject.repository.UserRepository;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -40,6 +47,7 @@ public class StudentService {
      * @throws SearchNotFoundException if no students are found matching the given
      *                                 criteria.
      */
+    @Cacheable(value = "students")
     public List<Student> find(StudentRequest request) {
         List<Student> students = buildStudentListFromDtoList(studentRepository.find(request));
 
@@ -48,6 +56,20 @@ public class StudentService {
         }
         return students;
 
+    }
+
+    /**
+     * Finds the student account details by the provided email.
+     *
+     * @param usersUsername the email of the user to search for
+     * @return the student account details associated with the given email
+     * @throws SearchNotFoundException if no student is found with the given email
+     */
+    public StudentAccountDetails findByEmail(String usersUsername) {
+        StudentAccountDetailsDto studentDto = studentRepository.findByEmail(usersUsername)
+                .orElseThrow(()-> new SearchNotFoundException("Student account not found with email: " +  usersUsername));
+
+        return buildStudentAccountDetailFromDto(studentDto, usersUsername);
     }
 
     /**
@@ -74,6 +96,13 @@ public class StudentService {
      */
     @Transactional
     public String insertNewStudent(StudentSignupRequest student) {
+        UserDto userDto = userRepository.findByEmail(student.getEmail()).orElse(null);
+
+        if  (userDto != null) {
+            throw new EmailAlreadyExistsException("An existing account already exists with the email: " + student.getEmail());
+        }
+
+
         // Step 1: Hash the plain-text password before storing it in the app_user table
         String hashedPassword = hashPlainTextPassword(student.getPassword());
 
@@ -88,6 +117,70 @@ public class StudentService {
         int studentInsertionResult = studentRepository.insertNewStudent(student);
 
         return "Student Signup Successful!";
+    }
+
+    /**
+     * Updates the details of an existing student and their associated user account.
+     *
+     * @param username The email of the student whose details need to be updated. This serves as a unique identifier.
+     * @param studentDetails The object containing the updated details to be applied to the student and user account.
+     * @return A confirmation message indicating the successful update of the account.
+     * @throws SearchNotFoundException If the student or user associated with the provided username cannot be found.
+     */
+    @Transactional
+    public String updateStudent(String username, EditStudentDetailsRequest studentDetails) {
+        //Do a find in the Student table using the username (email) and assign returned Student from repo to Student object
+        StudentUpdateDto outdatedStudent = studentRepository.findStudentByEmail(username).orElseThrow(()-> new SearchNotFoundException("Student Not found!"));
+        //Do a find in the User table using the username (email) and assign returned User from repo to User Object
+        UserDto outdatedUser = userRepository.findByEmail(username).orElseThrow(()-> new SearchNotFoundException("User not found!"));
+
+        //Set the values of the Student object with the values in the EditStudentDetailsRequest object
+        //We won't allow student/user to change their email, since this is tied to their authentication
+        StudentUpdateDto updatedStudent = updateStudentUpdateDto(outdatedStudent, studentDetails);
+
+        UserDto updatedUser = updateUserDto(outdatedUser, studentDetails);
+
+        //Send Updated Student Object to the Repository layer and wait to see if the update was successful
+        int studentResult = studentRepository.updateStudent(updatedStudent);
+        int userResult = userRepository.updateUser(updatedUser);
+
+        return "Account Updated Successfully!";
+    }
+
+    /**
+     * Updates the provided StudentUpdateDto object with the values from the EditStudentDetailsRequest object.
+     *
+     * @param studentUpdateDto the StudentUpdateDto object to be updated
+     * @param studentDetails the EditStudentDetailsRequest object containing the new student details
+     * @return the updated StudentUpdateDto object
+     */
+    private StudentUpdateDto updateStudentUpdateDto(StudentUpdateDto studentUpdateDto, EditStudentDetailsRequest studentDetails) {
+        studentUpdateDto.setFirstName(studentDetails.getFirstName());
+        studentUpdateDto.setLastName(studentDetails.getLastName());
+        studentUpdateDto.setResidentCity(studentDetails.getResidentCity());
+        studentUpdateDto.setResidentState(studentDetails.getResidentState());
+        studentUpdateDto.setUniversityId(studentDetails.getUniversityId());
+        studentUpdateDto.setGrade(studentDetails.getGrade());
+        studentUpdateDto.setMajor(studentDetails.getMajor());
+        studentUpdateDto.setSocialMediaLink(studentDetails.getSocialMediaLink());
+
+        return studentUpdateDto;
+    }
+
+    /**
+     * Updates the given UserDto with data from the EditStudentDetailsRequest.
+     * If the provided studentDetails object contains a non-blank password, it is encrypted
+     * and set in the UserDto.
+     *
+     * @param userDto the UserDto object to be updated
+     * @param studentDetails the EditStudentDetailsRequest containing updated student information
+     * @return the updated UserDto object
+     */
+    private UserDto updateUserDto(UserDto userDto, EditStudentDetailsRequest studentDetails) {
+        if(!studentDetails.getPassword().isBlank()) {
+            userDto.setPassword(passwordEncoder.encode(studentDetails.getPassword()));
+        }
+        return userDto;
     }
 
     private String hashPlainTextPassword(String password) {
@@ -160,4 +253,20 @@ public class StudentService {
                 .socialMediaLink(dto.getSocialMediaLink())
                 .build();
     }
+
+    static StudentAccountDetails buildStudentAccountDetailFromDto(StudentAccountDetailsDto studentDto, String email) {
+
+        return StudentAccountDetails.builder()
+                .firstName(studentDto.getFirstName())
+                .lastName(studentDto.getLastName())
+                .residentCity(studentDto.getResidentCity())
+                .residentState(studentDto.getResidentState())
+                .universityName(studentDto.getUniversityName())
+                .grade(studentDto.getGrade())
+                .major(studentDto.getMajor())
+                .email(email)
+                .socialMediaLink(studentDto.getSocialMediaLink())
+                .build();
+    }
+
 }

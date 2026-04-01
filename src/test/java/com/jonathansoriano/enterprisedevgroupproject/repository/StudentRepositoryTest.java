@@ -3,7 +3,9 @@ package com.jonathansoriano.enterprisedevgroupproject.repository;
 import com.jonathansoriano.enterprisedevgroupproject.domain.StudentRequest;
 import com.jonathansoriano.enterprisedevgroupproject.domain.StudentSignupRequest;
 import com.jonathansoriano.enterprisedevgroupproject.domain.UserRequest;
+import com.jonathansoriano.enterprisedevgroupproject.dto.StudentAccountDetailsDto;
 import com.jonathansoriano.enterprisedevgroupproject.dto.StudentDto;
+import com.jonathansoriano.enterprisedevgroupproject.dto.StudentUpdateDto;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -11,10 +13,15 @@ import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.dao.IncorrectResultSizeDataAccessException;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.util.CollectionUtils;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 
+import javax.swing.text.html.Option;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Stream;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -232,6 +239,212 @@ class StudentRepositoryTest {
                 .build();
         //Act and Assert
         assertThrows(RuntimeException.class, ()-> studentRepository.insertNewStudent(request));
+    }
+
+    @Test
+    void findByEmail_validEmail_Successful(){
+        //Arrange
+        String validEmail = "sarah.johnson@mail.uc.edu";
+
+        StudentAccountDetailsDto expectedStudentAccountDetailsDto = StudentAccountDetailsDto.builder()
+                .id(1L)
+                .firstName("Sarah")
+                .lastName("Johnson")
+                .residentCity("Cincinnati")
+                .residentState("OH")
+                .universityName("University of Cincinnati")
+                .grade("Junior")
+                .major("Computer Science")
+                .email("sarah.johnson@mail.uc.edu")
+                .socialMediaLink("https://linkedin.com/in/sarahjohnson")
+                .build();
+
+
+
+        //Act
+        Optional<StudentAccountDetailsDto> actualStudentAccountDetailsDto = studentRepository.findByEmail(validEmail);
+        //Assert
+
+        assertEquals(Optional.of(expectedStudentAccountDetailsDto), actualStudentAccountDetailsDto);
+    }
+
+    @Test
+    void findByEmail_invalidEmail_Unsuccessful(){
+        //Arrange
+        String invalidEmail = "sarah.johnson";
+
+        //Act
+        Optional<StudentAccountDetailsDto> actualStudentAccountDetailsDto = studentRepository.findByEmail(invalidEmail);
+        //Assert
+        assertEquals(Optional.empty(), actualStudentAccountDetailsDto);
+    }
+
+    @Test
+    void findByEmail_nonExistingEmail_Unsuccessful(){
+        //Arrange
+        String nonExistingEmail = "yuno.miles@uc.mail.edu";
+
+        //Act
+        Optional<StudentAccountDetailsDto> actualStudentAccountDetailsDto = studentRepository.findByEmail(nonExistingEmail);
+
+        //Assert
+        assertEquals(Optional.empty(), actualStudentAccountDetailsDto);
+    }
+
+    @Test
+    void findByEmail_nullEmail_Unsuccessful(){
+
+        //Act & Assert
+
+        //When a null value gets to the findByEmail method, our SqlUtils.andAddCondition() method checks if the value's a null
+        // If it is a null, the method returns an empty String. When an empty string is returned to the StringBuilder, it won't add
+        //the AND_EMAIL part of the SQL query, and instead will execute a general query (SELECT_VERSION_UNIVERSITY_NAME)
+        // and return multiple rows - hence the IncorrectResultSizeDataAccessExcemption
+
+        assertThrows(IncorrectResultSizeDataAccessException.class, ()-> studentRepository.findByEmail(null));
+    }
+
+    @Test
+    void findStudentByEmail_validEmail_Successful(){
+        //Arrange
+        String validEmail = "michael.chen@mail.uc.edu";
+
+        StudentUpdateDto expectedStudentUpdateDto = StudentUpdateDto.builder()
+                .id(2L)
+                .firstName("Michael")
+                .lastName("Chen")
+                .residentCity("Mason")
+                .residentState("OH")
+                .universityId(1)
+                .grade("Senior")
+                .major("Electrical Engineering")
+                .email("michael.chen@mail.uc.edu")
+                .socialMediaLink("https://twitter.com/mchen_uc")
+                .build();
+        //Act
+        Optional<StudentUpdateDto> actualStudentUpdateDto = studentRepository.findStudentByEmail(validEmail);
+        //Assert
+        assertEquals(Optional.of(expectedStudentUpdateDto), actualStudentUpdateDto);
+    }
+
+    @Test
+    void findStudentByEmail_invalidEmail_Unsuccessful(){
+        //Arrange
+        String invalidEmail = "michael.chen";
+
+        //Act
+        Optional<StudentUpdateDto> actualStudentUpdateDto = studentRepository.findStudentByEmail(invalidEmail);
+
+        //Assert
+
+        assertEquals(Optional.empty(), actualStudentUpdateDto);
+    }
+
+    @Test
+    void findStudentByEmail_nullEmail_Unsuccessful(){
+        //Act & Assert
+        assertThrows(IncorrectResultSizeDataAccessException.class, ()-> studentRepository.findStudentByEmail(null));
+    }
+
+    @Test
+    void updateStudent_NonNullFields_Successful(){
+        //Arrange
+        StudentUpdateDto studentUpdateDto = StudentUpdateDto.builder()
+                .id(1L)
+                .firstName("Sarah")
+                .lastName("Johnson")
+                .residentCity("Cincinnati")
+                .residentState("OH")
+                .universityId(1)
+                .grade("Junior")
+                .major("Computer Science")
+                .email("sarah.johnson@mail.uc.edu")
+                .socialMediaLink("https://linkedin.com/in/sarahjohnson")
+                .build();
+
+        int expectedStudentResult = 1;
+
+        //Act
+        int actualStudentResult = studentRepository.updateStudent(studentUpdateDto);
+
+        //Assert
+        assertEquals(expectedStudentResult, actualStudentResult);
+    }
+
+    @Test
+    void updateStudent_ValidNullField_Successful(){
+        //Arrange (Social Media Link is the only column that can be null, the rest of the fields are NOT NULL)
+        StudentUpdateDto student = StudentUpdateDto.builder()
+                .id(3L)
+                .firstName("Emily")
+                .lastName("Rodriguez")
+                .residentCity("Blue Ash")
+                .residentState("OH")
+                .universityId(1)
+                .grade("Freshman")
+                .major("Biology")
+                .email("emily.rodriguez@mail.uc.edu")
+                .socialMediaLink(null)
+                .build();
+
+        int expectedStudentResult = 1;
+
+        //Act
+        int actualStudentResult = studentRepository.updateStudent(student);
+
+        //Assert
+        assertEquals(expectedStudentResult, actualStudentResult);
+    }
+
+    @Test
+    void updateStudent_requiredFieldsNullUnsuccessful(){
+        //Arrange
+        StudentUpdateDto invalidStudent = StudentUpdateDto.builder()
+                .id(1L)
+                .firstName(null)
+                .lastName(null)
+                .residentCity(null)
+                .residentState(null)
+                .universityId(null)
+                .grade(null)
+                .major(null)
+                .email("sarah.johnson@mail.uc.edu")
+                .socialMediaLink("https://linkedin.com/in/sarahjohnson")
+                .build();
+
+
+        //Act & Assert
+
+        //When you execute an update where a column is defined as NOT NULL in your database schema,
+        // but your SQL provides a null value, the database (e.g., MySQL, PostgreSQL, H2) will reject the operation.
+        assertThrows(DataIntegrityViolationException.class, ()-> studentRepository.updateStudent(invalidStudent));
+
+    }
+
+    @Test
+    void updateStudent_NonExistingId_Unsuccessful(){
+        //Arrange (Student ID 1000 doesn't exist in the database to when trying to update the Student
+        //WHERE ID = 1000, it will execute the query but no rows are affected.
+        StudentUpdateDto invalidStudent = StudentUpdateDto.builder()
+                .id(1000L)
+                .firstName("Sara")
+                .lastName("Johnson")
+                .residentCity("Mason")
+                .residentState("OH")
+                .universityId(1)
+                .grade("Senior")
+                .major("IT")
+                .email("sarah.johnson@mail.uc.edu")
+                .socialMediaLink("https://linkedin.com/in/sarahjohnson")
+                .build();
+
+        int expectedStudentResult = 0;
+
+        //Act
+        int actualStudentResult = studentRepository.updateStudent(invalidStudent);
+
+        //Assert
+        assertEquals(expectedStudentResult, actualStudentResult);
     }
 
 }

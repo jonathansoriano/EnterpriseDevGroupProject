@@ -9,8 +9,8 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-//This DTO is used to return Student info when searching for a Particular student (Ex. GET endpoint "/student")
-public class StudentDto {
+//This DTO is used to return Student Account info when searching for a Particular student account (GET endpoint "/student/profile")
+public class StudentAccountDetailsDto {
     private Long id;
     private String firstName;
     private String lastName;

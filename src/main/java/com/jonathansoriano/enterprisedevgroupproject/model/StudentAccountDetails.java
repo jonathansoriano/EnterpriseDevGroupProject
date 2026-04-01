@@ -1,4 +1,5 @@
-package com.jonathansoriano.enterprisedevgroupproject.dto;
+package com.jonathansoriano.enterprisedevgroupproject.model;
+
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -9,9 +10,8 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-//This DTO is used to return Student info when searching for a Particular student (Ex. GET endpoint "/student")
-public class StudentDto {
-    private Long id;
+//This class is used to display the Student account details of the currently authenticated user to the UI
+public class StudentAccountDetails {
     private String firstName;
     private String lastName;
     private String residentCity;

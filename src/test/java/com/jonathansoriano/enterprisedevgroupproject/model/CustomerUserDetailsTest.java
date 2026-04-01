@@ -14,7 +14,7 @@ class CustomerUserDetailsTest {
     @BeforeEach
     void setUp() {
         UserDto userDto = UserDto.builder()
-                .id(1)
+                .id(1L)
                 .role("USER")
                 .email("test@email.com")
                 .password("passw0rd!")

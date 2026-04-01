@@ -7,11 +7,10 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 @Data
-@NoArgsConstructor
 @AllArgsConstructor
+@NoArgsConstructor
 @Builder
-//This is the class that will be used to create a new Student in the student table.
-public class StudentSignupRequest {
+public class EditStudentDetailsRequest {
     @NotBlank(message = "First name field is required")
     private String firstName;
 
@@ -43,8 +42,10 @@ public class StudentSignupRequest {
     )
     private String email;
 
-    @NotBlank(message = "Password is required")
-    @Size(min = 4, max = 255, message = "Password must be between 4 and 255 characters")
+    @Pattern(
+            regexp = "^$|^.{4,20}$",
+            message = "Password must be between 4 and 20 characters long or left blank"
+    )
     private String password;
 
     private String socialMediaLink;
