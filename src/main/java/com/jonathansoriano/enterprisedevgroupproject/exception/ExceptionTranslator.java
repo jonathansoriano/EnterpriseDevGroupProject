@@ -30,7 +30,7 @@ public class ExceptionTranslator {
     public ResponseEntity<ExceptionWrapper> handleSearchNotFoundException(SearchNotFoundException ex,
             HttpServletRequest request) {
         //Logging Exceptions
-        log.warn("Search not found at {}: {}", request.getRequestURI(), ex.getMessage());
+        log.warn("Search not found at {}: ", request.getRequestURI(), ex);
         // We retrieve said exception's message and return it in the ResponseEntity
         // along with HTTP status (404).
 
@@ -42,7 +42,7 @@ public class ExceptionTranslator {
 
     @ExceptionHandler
     public ResponseEntity<ExceptionWrapper> handleEmailAlreadyExistsException(EmailAlreadyExistsException ex, HttpServletRequest request) {
-        log.warn("Email already exists at {}: {}", request.getRequestURI(), ex.getMessage());
+        log.warn("Email already exists at {}: ", request.getRequestURI(), ex);
 
         ExceptionWrapper wrapper = new ExceptionWrapper(HttpStatus.CONFLICT.value(), ex.getMessage(), request.getRequestURI());
 
@@ -62,7 +62,7 @@ public class ExceptionTranslator {
         });
         String errorMessage = errors.toString();
 
-        log.warn("Property validation error(s) at {}: {}", request.getRequestURI(), errorMessage);
+        log.warn("Property validation error(s) at {}: ", request.getRequestURI(), ex);
 
         ExceptionWrapper wrapper = new ExceptionWrapper(HttpStatus.BAD_REQUEST.value(), "Property validation error(s):" + errorMessage, request.getRequestURI());
 
