@@ -25,7 +25,8 @@
     <div class="nav-links">
         <a href="/about.html" class="nav-link">About</a>
         <a href="/search.html" class="nav-link nav-link-active">Search</a>
-        <a href="#" class="nav-link">Universities</a>
+        <a href="/profile.html" class="nav-link">My Profile</a>
+        <a href="#" class="btn-outline-sm" onclick="event.preventDefault(); fetch('/logout', { method: 'POST' }).then(() => window.location.href = '/login.html?logout=true');">Sign Out</a>
     </div>
 </nav>
 
@@ -115,6 +116,9 @@
 </div>
 
 <script>
+    // Store the current results so sorting can re-render without refetching
+    let currentStudents = [];
+
     /**
      * Handles toggling the state filter buttons.
      */
@@ -161,11 +165,10 @@
         if (universityName) params.append('universityName', universityName);
         if (grade) params.append('grade', grade);
 
-        /* Map frontend names to backend DTO fields */
-        if (state) params.append('residentState', state);
-        if (city) params.append('residentCity', city);
+        if (state) params.append('state', state);
+        if (city) params.append('city', city);
 
-        const url = '/student/search' + (params.toString() ? '?' + params.toString() : '');
+        const url = '/student' + (params.toString() ? '?' + params.toString() : '');
 
         try {
             const response = await fetch(url);
@@ -174,11 +177,13 @@
                 const students = await response.json();
 
                 if (!students || students.length === 0) {
+                    currentStudents = [];
                     renderNoResults();
                     return;
                 }
 
-                renderResults(students);
+                currentStudents = students;
+                renderResults(currentStudents);
             } else {
                 const errorData = await response.json().catch(() => null);
                 renderError(errorData ? errorData.message : 'An unexpected error occurred.');
@@ -189,7 +194,54 @@
     }
 
     /**
-     * Renders the student result cards.
+     * Sorts the students array based on the selected sort option.
+     */
+    function sortStudents(students, sortBy) {
+        const gradeOrder = { 'freshman': 1, 'sophomore': 2, 'junior': 3, 'senior': 4 };
+        const sorted = [...students];
+
+        switch (sortBy) {
+            case 'name-asc':
+                sorted.sort((a, b) => {
+                    const nameA = (a.firstName + ' ' + a.lastName).toLowerCase();
+                    const nameB = (b.firstName + ' ' + b.lastName).toLowerCase();
+                    return nameA.localeCompare(nameB);
+                });
+                break;
+            case 'name-desc':
+                sorted.sort((a, b) => {
+                    const nameA = (a.firstName + ' ' + a.lastName).toLowerCase();
+                    const nameB = (b.firstName + ' ' + b.lastName).toLowerCase();
+                    return nameB.localeCompare(nameA);
+                });
+                break;
+            case 'university':
+                sorted.sort((a, b) => (a.universityName || '').localeCompare(b.universityName || ''));
+                break;
+            case 'grade':
+                sorted.sort((a, b) => {
+                    const gA = gradeOrder[(a.grade || '').toLowerCase()] || 99;
+                    const gB = gradeOrder[(b.grade || '').toLowerCase()] || 99;
+                    return gA - gB;
+                });
+                break;
+            default:
+                // 'recent' — default order from backend
+                break;
+        }
+        return sorted;
+    }
+
+    /**
+     * Handles sort dropdown change — re-sorts and re-renders without refetching.
+     */
+    function handleSortChange(selectEl) {
+        const sorted = sortStudents(currentStudents, selectEl.value);
+        renderCards(sorted);
+    }
+
+    /**
+     * Renders the full results view (header + cards).
      */
     function renderResults(students) {
         const container = document.getElementById('results-container');
@@ -202,52 +254,73 @@
                     </div>
                     <div class="sort-row">
                         <span class="sort-label">SORT BY:</span>
-                        <select class="sort-select"><option>Most Recent</option></select>
+                        <select class="sort-select" id="sort-select" onchange="handleSortChange(this)">
+                            <option value="recent">Most Recent</option>
+                            <option value="name-asc">Name A → Z</option>
+                            <option value="name-desc">Name Z → A</option>
+                            <option value="university">University</option>
+                            <option value="grade">Grade Level</option>
+                        </select>
                     </div>
                 </div>
-                <div class="results-grid">
+                <div class="results-grid" id="results-grid">
             `;
 
         students.forEach(student => {
-            const gradeClass = 'grade-' + student.grade.toLowerCase();
-            html += `
-                    <div class="student-card">
-                        <div class="card-badge ${gradeClass}">${escapeHtml(student.grade)}</div>
-                        <div class="card-header-row">
-                            <div class="avatar-placeholder">
-                                <span class="avatar-icon">👤</span>
-                            </div>
-                            <span class="student-id">ID: ${student.id}</span>
-                        </div>
-                        <h3 class="student-name">${escapeHtml(student.firstName)} ${escapeHtml(student.lastName)}</h3>
-                        <p class="student-university">${escapeHtml(student.universityName)}</p>
-                        <hr class="card-divider" />
-                        <div class="card-details">
-                            ${student.residentCity ? `
-                                <div class="detail-row">
-                                    <span class="detail-icon">📍</span>
-                                    <span>${escapeHtml(student.residentCity)}, ${escapeHtml(student.residentState)}</span>
-                                </div>
-                            ` : ''}
-                            ${student.email ? `
-                                <div class="detail-row">
-                                    <span class="detail-icon">✉️</span>
-                                    <a href="mailto:${escapeHtml(student.email)}" class="email-link">${escapeHtml(student.email)}</a>
-                                </div>
-                            ` : ''}
-                            ${student.socialMediaLink ? `
-                                <div class="detail-row">
-                                    <span class="detail-icon">🔗</span>
-                                    <a href="${escapeHtml(student.socialMediaLink)}" target="_blank" rel="noopener" class="social-link">${escapeHtml(student.socialMediaLink)}</a>
-                                </div>
-                            ` : ''}
-                        </div>
-                    </div>
-                `;
+            html += buildCardHtml(student);
         });
 
         html += '</div>';
         container.innerHTML = html;
+    }
+
+    /**
+     * Re-renders only the card grid (used by sort without rebuilding the header).
+     */
+    function renderCards(students) {
+        const grid = document.getElementById('results-grid');
+        if (!grid) return;
+        grid.innerHTML = students.map(s => buildCardHtml(s)).join('');
+    }
+
+    /**
+     * Builds the HTML for a single student card.
+     */
+    function buildCardHtml(student) {
+        const gradeClass = 'grade-' + student.grade.toLowerCase();
+        return `
+            <div class="student-card">
+                <div class="card-badge ${gradeClass}">${escapeHtml(student.grade)}</div>
+                <div class="card-header-row">
+                    <div class="avatar-placeholder">
+                        <span class="avatar-icon">👤</span>
+                    </div>
+                </div>
+                <h3 class="student-name">${escapeHtml(student.firstName)} ${escapeHtml(student.lastName)}</h3>
+                <p class="student-university">${escapeHtml(student.universityName)}</p>
+                <hr class="card-divider" />
+                <div class="card-details">
+                    ${student.residentCity ? `
+                        <div class="detail-row">
+                            <span class="detail-icon">📍</span>
+                            <span>${escapeHtml(student.residentCity)}, ${escapeHtml(student.residentState)}</span>
+                        </div>
+                    ` : ''}
+                    ${student.email ? `
+                        <div class="detail-row">
+                            <span class="detail-icon">✉️</span>
+                            <a href="mailto:${escapeHtml(student.email)}" class="email-link">${escapeHtml(student.email)}</a>
+                        </div>
+                    ` : ''}
+                    ${student.socialMediaLink ? `
+                        <div class="detail-row">
+                            <span class="detail-icon">🔗</span>
+                            <a href="${escapeHtml(student.socialMediaLink)}" target="_blank" rel="noopener" class="social-link">${escapeHtml(student.socialMediaLink)}</a>
+                        </div>
+                    ` : ''}
+                </div>
+            </div>
+        `;
     }
 
     /**
