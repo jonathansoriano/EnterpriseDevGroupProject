@@ -44,7 +44,7 @@ public class SecurityConfig {
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/", "/index.html", "/about.html", "/login.html", "/profile.html", "/css/**").permitAll() // Pages that dont require authentication
+                        .requestMatchers("/", "/index.html", "/about.html", "/login.html", "/profile.html", "/css/**", "/favicon.ico").permitAll() // Pages that dont require authentication
                         .requestMatchers(HttpMethod.POST, "/student").permitAll() // Endpoint that doesn't require authentication
                         .requestMatchers(HttpMethod.GET, "/student").authenticated() // Endpoint that requires authentication
                         .requestMatchers(HttpMethod.GET,"/student/profile").authenticated() //Endpoint that requires authentication
