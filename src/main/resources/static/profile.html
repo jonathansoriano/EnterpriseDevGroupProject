@@ -1,0 +1,404 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Edit Profile – Tri-State Student Directory</title>
+    <meta name="description"
+          content="Edit your profile in the Tri-State Student Network directory." />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap"
+          rel="stylesheet" />
+    <link rel="stylesheet" href="/css/style.css" />
+</head>
+
+<body class="auth-page">
+
+<!-- Navigation -->
+<nav class="nav">
+    <div class="nav-brand">
+        <div class="nav-logo">🎓</div>
+        <span class="nav-title"><strong>STUDENT</strong>NETWORK</span>
+    </div>
+    <div class="nav-links">
+        <a href="/about.html" class="nav-link">About</a>
+        <a href="/search.html" class="nav-link">Search</a>
+        <span class="nav-divider">|</span>
+        <!-- User Dropdown Menu -->
+        <div class="nav-user" id="user-menu">
+            <button type="button" class="nav-user-btn" onclick="toggleUserMenu()">
+                <div class="nav-avatar">👤</div>
+                <span class="nav-user-name">Account</span>
+                <span class="nav-chevron">▼</span>
+            </button>
+            <div class="nav-dropdown">
+                <div class="nav-dropdown-label">Navigation</div>
+                <a href="/profile.html" class="nav-dropdown-item nav-link-active" id="update-profile-link">
+                    <span class="dropdown-icon">✏️</span> Update Profile
+                </a>
+                <a href="/search.html" class="nav-dropdown-item">
+                    <span class="dropdown-icon">🔍</span> Search Students
+                </a>
+                <div class="nav-dropdown-divider"></div>
+                <a href="#" onclick="handleLogout(event)" class="nav-dropdown-item logout-item" id="logout-link">
+                    <span class="dropdown-icon">🚪</span> Sign Out
+                </a>
+            </div>
+        </div>
+    </div>
+</nav>
+
+<!-- Form Card -->
+<div class="auth-layout">
+    <div class="auth-hero">
+        <div class="badge-label">TRI-STATE STUDENT NETWORK</div>
+        <h1 class="auth-headline">Edit<br /><em>your</em><br />profile.</h1>
+        <p class="auth-subtext">
+            Update your personal information in the directory.
+            Fields marked with * are required.
+        </p>
+    </div>
+
+    <div class="auth-card">
+        <div class="tab-bar">
+            <button type="button" class="tab-btn tab-active">EDIT PROFILE</button>
+        </div>
+
+        <!-- Loading state shown while fetching student data -->
+        <div class="tab-content" id="loading-content">
+            <p style="text-align: center; color: #888; padding: 40px 0;">Loading student data…</p>
+        </div>
+
+        <!-- Error state if student not found -->
+        <div class="tab-content" id="error-content" style="display: none;">
+            <p style="text-align: center; color: #ef4444; padding: 40px 0;" id="error-text">Student not found.</p>
+            <a href="/search.html" class="btn-primary-full" style="text-align: center; display: block; text-decoration: none;">Back to Search</a>
+        </div>
+
+        <!-- Edit form (hidden until data is loaded) -->
+        <div class="tab-content" id="edit-content" style="display: none;">
+            <form id="edit-student-form" onsubmit="return handleEditStudent(event)">
+
+                <!-- Form Row Wrapper -->
+
+                <!-- Row: First Name & Last Name (mandatory) -->
+                <div class="form-row">
+                    <div class="form-group form-group-half">
+                        <label class="form-label" for="edit-firstName">FIRST NAME *</label>
+                        <input type="text" id="edit-firstName" name="firstName" class="form-input"
+                               maxlength="20" required />
+                        <small class="form-hint">Letters, spaces, hyphens only</small>
+                    </div>
+                    <div class="form-group form-group-half">
+                        <label class="form-label" for="edit-lastName">LAST NAME *</label>
+                        <input type="text" id="edit-lastName" name="lastName" class="form-input"
+                               maxlength="20" required />
+                        <small class="form-hint">Letters, spaces, hyphens only</small>
+                    </div>
+                </div>
+
+                <!-- University Selection (mandatory) -->
+                <div class="form-group">
+                    <label class="form-label" for="edit-university">UNIVERSITY *</label>
+                    <select id="edit-university" name="universityId" class="form-input" required>
+                        <option value="">Select University</option>
+                        <option value="1">University of Cincinnati</option>
+                        <option value="2">Northern Kentucky University</option>
+                        <option value="3">Xavier University</option>
+                        <option value="4">Miami University</option>
+                        <option value="5">Thomas More University</option>
+                        <option value="6">Cincinnati State</option>
+                        <option value="7">Mount St. Joseph University</option>
+                        <option value="8">Cincinnati Christian University</option>
+                    </select>
+                </div>
+
+                <!-- Email (read-only — this is the login credential) -->
+                <div class="form-group">
+                    <label class="form-label" for="edit-email">EMAIL</label>
+                    <input type="email" id="edit-email" name="email" class="form-input" readonly
+                           style="background: #f0f0f0; cursor: not-allowed;" />
+                    <small class="form-hint">Email cannot be changed (used for sign-in)</small>
+                </div>
+
+                <!-- Row: Grade & Major (mandatory) -->
+                <div class="form-row">
+                    <div class="form-group form-group-half">
+                        <label class="form-label" for="edit-grade">GRADE *</label>
+                        <select id="edit-grade" name="grade" class="form-input" required>
+                            <option value="">Select Grade</option>
+                            <option value="Freshman">Freshman</option>
+                            <option value="Sophomore">Sophomore</option>
+                            <option value="Junior">Junior</option>
+                            <option value="Senior">Senior</option>
+                        </select>
+                    </div>
+                    <div class="form-group form-group-half">
+                        <label class="form-label" for="edit-major">MAJOR *</label>
+                        <input type="text" id="edit-major" name="major" class="form-input"
+                               maxlength="255" required />
+                        <small class="form-hint">Letters, spaces, ampersands, hyphens</small>
+                    </div>
+                </div>
+
+                <!-- Row: City & State (mandatory) -->
+                <div class="form-row">
+                    <div class="form-group form-group-half">
+                        <label class="form-label" for="edit-city">CITY *</label>
+                        <input type="text" id="edit-city" name="residentCity" class="form-input"
+                               maxlength="40" required />
+                    </div>
+                    <div class="form-group form-group-half">
+                        <label class="form-label" for="edit-state">STATE *</label>
+                        <select id="edit-state" name="residentState" class="form-input" required>
+                            <option value="">Select</option>
+                            <option value="OH">OH</option>
+                            <option value="KY">KY</option>
+                            <option value="IN">IN</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Social Media Link (optional) -->
+                <div class="form-group">
+                    <label class="form-label" for="edit-social">SOCIAL MEDIA LINK (OPTIONAL)</label>
+                    <input type="url" id="edit-social" name="socialMediaLink" class="form-input" />
+                    <small class="form-hint">Must begin with http:// or https://</small>
+                </div>
+
+                <!-- New Password (optional) -->
+                <div class="form-group">
+                    <label class="form-label" for="edit-password">NEW PASSWORD (OPTIONAL)</label>
+                    <input type="password" id="edit-password" name="newPassword" class="form-input"
+                           placeholder="Leave blank to keep current password" minlength="8" />
+                    <small class="form-hint">Min. 8 characters — only fill in if you want to change your password</small>
+                </div>
+
+                <!-- Submit -->
+                <button type="submit" class="btn-primary-full" id="edit-btn">SAVE CHANGES</button>
+
+                <!-- Status message area -->
+                <div id="edit-message"></div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+    // University name to ID mapping for pre-selecting the dropdown
+    const universityMap = {
+        'University of Cincinnati': '1',
+        'Northern Kentucky University': '2',
+        'Xavier University': '3',
+        'Miami University': '4',
+        'Thomas More University': '5',
+        'Cincinnati State Technical and Community College': '6',
+        'Cincinnati State': '6',
+        'Mount St. Joseph University': '7',
+        'Cincinnati Christian University': '8'
+    };
+
+    /**
+     * Maps backend DTO field names to the edit form's input IDs.
+     */
+    const editFieldMap = {
+        firstName: 'edit-firstName',
+        lastName: 'edit-lastName',
+        universityId: 'edit-university',
+        email: 'edit-email',
+        grade: 'edit-grade',
+        major: 'edit-major',
+        residentCity: 'edit-city',
+        residentState: 'edit-state',
+        socialMediaLink: 'edit-social',
+        newPassword: 'edit-password'
+    };
+
+    /**
+     * Clears all inline field errors from a form.
+     */
+    function clearFieldErrors(form) {
+        form.querySelectorAll('.field-error').forEach(el => el.remove());
+        form.querySelectorAll('.input-error').forEach(el => el.classList.remove('input-error'));
+    }
+
+    /**
+     * Shows an inline error message below a specific form field.
+     */
+    function showFieldError(inputId, message) {
+        const input = document.getElementById(inputId);
+        if (!input) return;
+        input.classList.add('input-error');
+        const errorEl = document.createElement('div');
+        errorEl.className = 'field-error';
+        errorEl.textContent = message;
+        input.parentElement.appendChild(errorEl);
+    }
+
+    /**
+     * On page load, fetch the logged in user's data from the backend
+     * and pre-fill the form fields.
+     */
+    window.addEventListener('DOMContentLoaded', async function () {
+        try {
+            const response = await fetch('/student/profile');
+
+            if (!response.ok) {
+                showError('Could not load your profile. Please sign in again.');
+                return;
+            }
+
+            const student = await response.json();
+            populateForm(student);
+        } catch (err) {
+            showError('Unable to connect to server.');
+        }
+    });
+
+    /**
+     * Populates form fields with the student's existing data.
+     */
+    function populateForm(student) {
+        document.getElementById('edit-firstName').value = student.firstName || '';
+        document.getElementById('edit-lastName').value = student.lastName || '';
+        document.getElementById('edit-email').value = student.email || '';
+        document.getElementById('edit-grade').value = student.grade || '';
+        document.getElementById('edit-major').value = student.major || '';
+        document.getElementById('edit-city').value = student.residentCity || '';
+        document.getElementById('edit-state').value = student.residentState || '';
+        document.getElementById('edit-social').value = student.socialMediaLink || '';
+
+        // Map university name back to ID for the dropdown
+        const uniId = universityMap[student.universityName] || '';
+        document.getElementById('edit-university').value = uniId;
+
+        // Show the form, hide loading
+        document.getElementById('loading-content').style.display = 'none';
+        document.getElementById('edit-content').style.display = 'block';
+    }
+
+    /**
+     * Shows the error state panel.
+     */
+    function showError(message) {
+        document.getElementById('loading-content').style.display = 'none';
+        document.getElementById('error-text').textContent = message;
+        document.getElementById('error-content').style.display = 'block';
+    }
+
+    /**
+     * Handles the edit form submission.
+     * Builds a JSON payload matching the StudentSaveRequest DTO
+     * and sends a PUT request to /student/edit/{id}.
+     * Displays inline error messages for any validation failures.
+     */
+    async function handleEditStudent(e) {
+        e.preventDefault();
+
+        const form = document.getElementById('edit-student-form');
+        const messageDiv = document.getElementById('edit-message');
+
+        clearFieldErrors(form);
+        messageDiv.innerHTML = '';
+
+        const newPassword = document.getElementById('edit-password').value;
+        const payload = {
+            firstName: document.getElementById('edit-firstName').value.trim(),
+            lastName: document.getElementById('edit-lastName').value.trim(),
+            universityId: parseInt(document.getElementById('edit-university').value),
+            email: document.getElementById('edit-email').value.trim(),
+            grade: document.getElementById('edit-grade').value,
+            major: document.getElementById('edit-major').value.trim(),
+            residentCity: document.getElementById('edit-city').value.trim(),
+            residentState: document.getElementById('edit-state').value,
+            socialMediaLink: document.getElementById('edit-social').value.trim() || null,
+            newPassword: newPassword.length > 0 ? newPassword : null
+        };
+
+        try {
+            const response = await fetch('/student/profile', {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload)
+            });
+
+            if (response.ok) {
+                const text = await response.text();
+                messageDiv.innerHTML = `<div class="form-alert form-alert-success">${text}</div>`;
+            } else {
+                const text = await response.text();
+                let parsed = null;
+                try { parsed = JSON.parse(text); } catch (_) {}
+
+                if (parsed && parsed.message) {
+                    const fieldMatch = parsed.message.match(/\{(.+)\}/);
+                    if (fieldMatch) {
+                        const pairs = fieldMatch[1].split(/,\s*/);
+                        let hasFieldError = false;
+                        pairs.forEach(pair => {
+                            const [key, ...valParts] = pair.split('=');
+                            const fieldName = key.trim();
+                            const msg = valParts.join('=').trim();
+                            if (editFieldMap[fieldName]) {
+                                showFieldError(editFieldMap[fieldName], msg);
+                                hasFieldError = true;
+                            }
+                        });
+                        if (hasFieldError) {
+                            form.classList.add('shake');
+                            setTimeout(() => form.classList.remove('shake'), 400);
+                            const firstError = form.querySelector('.input-error');
+                            if (firstError) firstError.focus();
+                        }
+                        if (!hasFieldError) {
+                            messageDiv.innerHTML = `<div class="form-alert form-alert-error">${parsed.message}</div>`;
+                        }
+                    } else {
+                        messageDiv.innerHTML = `<div class="form-alert form-alert-error">${parsed.message}</div>`;
+                    }
+                } else {
+                    messageDiv.innerHTML = `<div class="form-alert form-alert-error">${text || 'Failed to update student.'}</div>`;
+                }
+            }
+        } catch (error) {
+            messageDiv.innerHTML = '<div class="form-alert form-alert-error">Unable to connect to server.</div>';
+        }
+
+        return false;
+    }
+
+    /**
+     * Toggle the user dropdown menu open/closed.
+     */
+    function toggleUserMenu() {
+        document.getElementById('user-menu').classList.toggle('open');
+    }
+
+    // Close menu when clicking outside
+    document.addEventListener('click', function(e) {
+        const menu = document.getElementById('user-menu');
+        if (menu && !menu.contains(e.target)) {
+            menu.classList.remove('open');
+        }
+    });
+
+    /**
+     * Handle the user logout by sending a POST request to Spring Security's /logout endpoint.
+     */
+    async function handleLogout(e) {
+        e.preventDefault();
+        try {
+            await fetch('/logout', { method: 'POST' });
+            window.location.href = '/login.html?logout=true';
+        } catch (err) {
+            console.error('Logout failed:', err);
+            window.location.href = '/login.html?logout=true';
+        }
+    }
+</script>
+
+</body>
+
+</html>
