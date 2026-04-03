@@ -11,8 +11,6 @@ The application created in this problem is a University Student Directory progra
 ## 2. Storyboard
 ![Create Account Screen](screen-1.png)
 
-![Verify Student Screen](screen-2.png)
-
 ![Search Students Screen](screen.png)
 
 ---
