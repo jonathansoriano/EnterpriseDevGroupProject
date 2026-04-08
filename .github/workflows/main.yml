@@ -280,6 +280,7 @@ jobs:
                 POSTGRES_DB: ${DB_NAME}
               volumes:
                 - pgdata:/var/lib/postgresql/data
+                - ./db/init:/docker-entrypoint-initdb.d:ro
               healthcheck:
                 test: ["CMD-SHELL", "pg_isready -U ${DB_USER} -d ${DB_NAME}"]
                 interval: 10s
@@ -291,6 +292,7 @@ jobs:
 
             app:
               image: ${IMAGE}
+              platform: linux/amd64
               container_name: enterprisedevgroupproject
               pull_policy: always
               ports:
@@ -510,12 +512,13 @@ jobs:
         run: |
           zip -r deployment-bundle.zip \
             docker-compose.prod.yml \
+            db/init/ \
             monitoring/ \
             CREDENTIALS.txt \
             sbom-cyclonedx.json
           echo "Bundle size: $(du -sh deployment-bundle.zip | cut -f1)"
 
-      # ── 10. Upload artifact ────────────────────────────────────────────────
+      # ── 10. Upload artifact ───────────────────────────────────────────────
       - name: Upload deployment bundle as artifact
         uses: actions/upload-artifact@v7
         with:
@@ -523,7 +526,7 @@ jobs:
           path: deployment-bundle.zip
           retention-days: 30
 
-      # ── 11. GitHub Release ────────────────────────────────────────────────
+      # ── 11. GitHub Release ───────────────────────────────────────────────
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v2
         with:
